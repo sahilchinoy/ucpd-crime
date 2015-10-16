@@ -2,6 +2,7 @@ import os
 import csv
 import logging
 from django.conf import settings
+from django.db import transaction
 from django.contrib.gis.geos import fromstr
 from django.core.management.base import BaseCommand
 from ucpd.models import Incident
@@ -22,7 +23,6 @@ class Command(BaseCommand):
         addresses = {}
         addresses_path = os.path.join(
             settings.DATA_DIR,
-            'ucpd',
             'addresses.csv'
         )
         with open(addresses_path, 'r') as addresses_file:

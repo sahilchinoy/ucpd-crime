@@ -1,4 +1,4 @@
-# berkeley-crime
+# ucpd-crime
 
 Berkeley crime analysis (a universe away from [the original](http://berkeleycrime.org))
 

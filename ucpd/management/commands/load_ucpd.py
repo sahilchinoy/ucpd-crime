@@ -14,6 +14,9 @@ class Command(BaseCommand):
     help = "Load historical crime data from UCPD."
 
     def handle(self, *args, **options):
+        
+        Incident.objects.all().delete()
+
         dir_path = os.path.join(
             settings.DATA_DIR, 'ucpd')
 
