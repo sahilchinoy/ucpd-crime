@@ -1,0 +1,173 @@
+key,agency,description,category
+Accident Non-injury Accident,BPD,Accident,N
+Accident Minor Injury Accident,BPD,Accident,N
+ALARM SERVICE,UCPD,Alarm,N
+Alcohol Violations Underage Alcohol,BPD,Alcohol,Q
+Alcohol Violations Drunk In Public,BPD,Alcohol,Q
+ALCOHOL OFFENSE,BPD,Alcohol,Q
+LIQUOR VIOLATIONS,UCPD,Alcohol,Q
+ANIMAL CASE,UCPD,Animal,N
+ARSON,BPD,Arson,P
+Arson Arson,BPD,Arson,P
+ARSON,UCPD,Arson,P
+Battery Battery,BPD,Assault,V
+ASSAULT/BATTERY FEL.,BPD,Assault,V
+Aggravated Assault ASSAULT/BATTERYMISDEMEANOR,BPD,Assault,V
+Aggravated Assault ASSAULT/BATTERY FELONY,BPD,Assault,V
+Aggravated Assault Assault W/Deadly Wpn,BPD,Assault,V
+Aggravated Assault Assault - Chemical,BPD,Assault,V
+ASSAULT/BATTERY MISD.,BPD,Assault,V
+OTHER ASSAULTS,UCPD,Assault,V
+AGGRAVATED ASSAULTS,UCPD,Assault,P
+ATTEMPT RAPE,UCPD,Attempted rape,V
+Stolen Auto Recovery Stolen Auto Recovery,BPD,Auto recovery,N
+BOMB THREAT,UCPD,Bomb threat,Q
+Burglary BURGLARY COMMERCIAL,BPD,Burglary,P
+Auto Burglary Burglary Auto,BPD,Burglary,P
+Burglary BURGLARY RESIDENTIAL,BPD,Burglary,P
+Burglary Burglary-Com'l,BPD,Burglary,P
+Burglary Burglary,BPD,Burglary,P
+BURGLARY COMMERCIAL,BPD,Burglary,P
+Burglary Burglary-Res'l,BPD,Burglary,P
+Theft BURGLARY AUTO,BPD,Burglary,P
+BURGLARY RESIDENTIAL,BPD,Burglary,P
+BURGLARY,UCPD,Burglary,P
+DEMONSTRATION,UCPD,Demonstration,N
+Resisting or obstructing an officer Resisting or obstructing an officer,BPD,Disorderly conduct,Q
+Indecent Exposure Indecent Exposure,BPD,Disorderly conduct,Q
+Prostitution Disorderly conduct: Prostitution,BPD,Disorderly conduct,Q
+Violation of Restraining Order Violation of Restraining Order,BPD,Disorderly conduct,Q
+Disorderly conduct Peeping,BPD,Disorderly conduct,Q
+Probation Violation Probation Violation,BPD,Disorderly conduct,Q
+Disorderly conduct Prowling,BPD,Disorderly conduct,Q
+Disorderly conduct Encampment,BPD,Disorderly conduct,Q
+DISORDERLY CONDUCT,UCPD,Disorderly conduct,Q
+Disturbances Family Disturbance,BPD,Disturbance,Q
+Disturbances Disturbance,BPD,Disturbance,Q
+Dog Bite (With Injury) Dog Bite (With Injury),BPD,Disturbance,N
+MUNICIPAL CODE,BPD,Disturbance,Q
+Disturbances Barking Dog,BPD,Disturbance,Q
+"Threatening, Harassing, Annoying Phone Calls Threatening, Harassing, Annoying Phone Calls",BPD,Disturbance,Q
+Disturbances Loud Noise,BPD,Disturbance,Q
+ALARM,UCPD,Disturbance,Q
+Child Neglect Child Neglect,BPD,Domestic violence,Q
+Child Abuse Child Abuse,BPD,Domestic violence,Q
+DOMESTIC VIOLENCE,BPD,Domestic violence,Q
+Disturbances DOMESTIC VIOLENCE,BPD,Domestic violence,Q
+Domestic Violence Domestic Violence,BPD,Domestic violence,Q
+Misdemeanor DUI (No injuries) Misdemeanor DUI (No injuries),BPD,DUI,Q
+Felony DUI (With Injuries) Felony DUI (With Injuries),BPD,DUI,Q
+DRIVING UNDER THE INFLUENCE,UCPD,DUI,Q
+EMBEZZLEMENT,UCPD,Embezzlement,P
+EXPLOSION,UCPD,Explosion,N
+FIRE,UCPD,Fire,N
+Forgery Forgery,BPD,Fraud/forgery,Q
+FRAUD/FORGERY,BPD,Fraud/forgery,Q
+FORGERY AND COUNTERFEITING,UCPD,Fraud/forgery,Q
+HAZARD,UCPD,Hazard,N
+Accident Hit and Run (With Injuries),BPD,Hit and run,Q
+Accident Hit and Run (Property Damage Only),BPD,Hit and run,P
+Homicide Homicide,BPD,Homicide,V
+HOMICIDE,UCPD,Homicide,V
+IDENTITY THEFT,BPD,Identity theft,Q
+Identity Theft Identity Theft,BPD,Identity theft,Q
+Robbery Kidnap,BPD,Kidnapping,V
+KIDNAPPING,BPD,Kidnapping,V
+MAINTENANCE ISSUE,UCPD,Maintenance,N
+MEDICAL EVENT,UCPD,Medical,N
+Missing Person Missing Person,BPD,Missing person,Q
+MISSING ADULT,BPD,Missing person,Q
+Runaway Runaway,BPD,Missing person,Q
+MISSING JUVENILE,BPD,Missing person,Q
+MISSING PERSON,UCPD,Missing person,Q
+Stolen Auto VEHICLE STOLEN,BPD,Motor vehicle theft,P
+VEHICLE STOLEN,BPD,Motor vehicle theft,P
+Stolen Auto Stolen Vehicle,BPD,Motor vehicle theft,P
+Narcotics Violations Possession of controlled substance,BPD,Narcotics,Q
+NARCOTICS,BPD,Narcotics,Q
+Narcotics Violations Possession of controlled substance for sale,BPD,Narcotics,Q
+"Narcotics Violations Selling, furnishing controlled substance",BPD,Narcotics,Q
+Narcotics Violations H & S Violation,BPD,Narcotics,Q
+Narcotics Violations Possession of drug paraphernalia,BPD,Narcotics,Q
+DRUG VIOLATIONS,UCPD,Narcotics,Q
+No Category No Offense,BPD,None,N
+Making a false crime report Making a false crime report,BPD,Other,N
+Providing false information to an officer Providing false information to an officer,BPD,Other,N
+Emergency Psychiatric Detention Emergency Psychiatric Detention,BPD,Other,N
+MISC. SERVICE,UCPD,Other,N
+ALL OTHER OFFENSES,UCPD,Other,N
+OUTSIDE ASSIST,UCPD,Other,N
+FIRE ALARM,UCPD,Other,N
+TOW,UCPD,Other,N
+TRAFFIC,UCPD,Other,N
+CALIFORNIA CODE OF REGULATIONS VIOLATIONS,UCPD,Other,N
+PENAL CODE VIOLATION,UCPD,Other,N
+BERKELEY MUNICIPAL CODE VIOLATION,UCPD,Other,N
+SPECIAL EVENT,UCPD,Other,N
+VEHICLE CODE VIOLATION,UCPD,Other,N
+BUSINESS/PROFESSIONS CODE VIOLATION,UCPD,Other,N
+HEALTH AND SAFETY CODE VIOLATION,UCPD,Other,N
+PEDESTRIAN STOP,UCPD,Other,N
+TRAFFIC STOP,UCPD,Other,N
+ADMINISTRATIVE SERVICE,UCPD,Other,N
+SECURITY CHECK,UCPD,Other,N
+EDUCATION CODE VIOLATION,UCPD,Other,N
+MUTUAL AID SERVICE,UCPD,Other,N
+LOCK OUT,UCPD,Other,N
+U.S. CODE VIOLATION,UCPD,Other,N
+Parole Violation Parole Violation,BPD,Parole violation,Q
+RAPE,UCPD,Rape,V
+VEHICLE RECOVERED,BPD,Recovery,N
+Recovery Recovery,BPD,Recovery,N
+Robbery Carjacking,BPD,Robbery,V
+ROBBERY,BPD,Robbery,V
+Robbery Robbery,BPD,Robbery,V
+ROBBERY,UCPD,Robbery,P
+2ND RESPONSE,BPD,Second response,N
+Security Check Security Check,BPD,Security check,N
+SEX OFFENSES,UCPD,Sex offense,Q
+Sexual Assaults Oral Copulation,BPD,Sexual assault,V
+Sexual Assaults Child Molestation,BPD,Sexual assault,V
+Sexual Assaults Attempt Rape,BPD,Sexual assault,V
+Sexual Assaults Rape,BPD,Sexual assault,V
+SHOOTING,UCPD,Shooting,V
+STOLEN PROPERTY,UCPD,Stolen property,P
+SUICIDE,UCPD,Suicide,N
+SUICIDE ATTEMPT,UCPD,Suicide attempt,N
+Suspended License Suspended License,BPD,Suspended license,N
+SUSCIRC- HOMICIDE,BPD,Suspicious,Q
+Dead Body Found Dead Body Found,BPD,Suspicious,Q
+SUSCIRC- ROBBERY,BPD,Suspicious,Q
+SUSCIRC,BPD,Suspicious,Q
+SUSPICIOUS EVENT,UCPD,Suspicious,N
+THEFT MISD. (UNDER $950),BPD,Theft,P
+Theft THEFT FROM AUTO,BPD,Theft,P
+Theft THEFT FELONY,BPD,Theft,P
+Theft THEFT MISDEMEANOR,BPD,Theft,P
+THEFT FROM AUTO,BPD,Theft,P
+Theft Petty Theft,BPD,Theft,P
+Theft Theft of lost property,BPD,Theft,P
+THEFT FELONY (OVER $950),BPD,Theft,P
+Theft Grand Theft,BPD,Theft,P
+LARCENY/THEFT,UCPD,Theft,P
+MOTOR VEHICLE THEFT,UCPD,Theft,P
+Trespassing Trespassing,BPD,Trespassing,Q
+Vandalism Malicious Damage,BPD,Vandalism,Q
+VANDALISM VANDALISM,BPD,Vandalism,Q
+Vandalism Vandalism to a Vehicle,BPD,Vandalism,Q
+VANDALISM,BPD,Vandalism,Q
+VANDALISM,UCPD,Vandalism,P
+Prostitution Prostitution Activity,BPD,Vice,Q
+VICE,BPD,Vice,Q
+Warrant Arrest Warrant Arrest,BPD,Warrant,N
+Search Warrant Search Warrant,BPD,Warrant,N
+Weapon charge Possession of loaded weapon,BPD,Weapon,Q
+Weapon charge Brandishing a Weapon,BPD,Weapon,Q
+Weapon charge Possession of illegal weapon,BPD,Weapon,Q
+GUN/WEAPON,BPD,Weapon,Q
+Weapon charge Possession of concealed weapon,BPD,Weapon,Q
+Discharge of a firearm at an inhabited dwelling Discharge of a firearm at an inhabited dwelling,BPD,Weapon,Q
+BRANDISHING,BPD,Weapon,Q
+WEAPONS VIOLATIONS,UCPD,Weapon,Q
+Welfare Check Welfare Check,BPD,Welfare check,N
+WELFARE CHECK,UCPD,Welfare check,N

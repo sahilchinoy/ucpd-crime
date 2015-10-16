@@ -1,0 +1,123 @@
+module.exports = copy;
+
+function copy(sourceBuffer, targetBuffer, sourceFirstBitIndex, sourceLastBitIndex, targetFirstBitIndex){
+	if(!Buffer.isBuffer(sourceBuffer)) throw new TypeError("Source must be a Buffer instance");
+	if(!Buffer.isBuffer(targetBuffer)) throw new TypeError("Target must be a Buffer instance");
+
+	targetFirstBitIndex || (targetFirstBitIndex = 0);
+	sourceFirstBitIndex || (sourceFirstBitIndex = 0);
+	sourceLastBitIndex || (sourceLastBitIndex = sourceBuffer.length * 8 - 1);
+	
+	var sourceBitCount = sourceLastBitIndex - sourceFirstBitIndex + 1;
+
+	// Track the starting and ending octet indices from the source
+	var sourceFirstOctetIndex = Math.floor((sourceFirstBitIndex) / 8);
+	var sourceLastOctetIndex = Math.floor((sourceLastBitIndex) / 8);
+	
+	// Count how many octets from the source will be read
+	var sourceOctetCount = sourceLastOctetIndex - sourceFirstOctetIndex + 1;
+	
+	// Track the starting and ending octet indices from the target
+	var targetFirstOctetIndex = Math.floor(targetFirstBitIndex / 8);
+	var targetLastOctetIndex = targetFirstOctetIndex + sourceOctetCount - 1;
+
+/* Add a slash at the beginning of this to enable logging
+	console.log('targetFirstBitIndex', targetFirstBitIndex);
+	console.log('sourceFirstBitIndex', sourceFirstBitIndex);
+	console.log('sourceLastBitIndex', sourceLastBitIndex);
+	console.log('sourceBitCount', sourceBitCount);
+	console.log('sourceFirstOctetIndex', sourceFirstOctetIndex);
+	console.log('sourceLastOctetIndex', sourceLastOctetIndex);
+	console.log('sourceOctetCount', sourceOctetCount);
+	console.log('targetFirstOctetIndex', targetFirstOctetIndex);
+	console.log('targetLastOctetIndex', targetLastOctetIndex);
+	console.log('targetBuffer.length', targetBuffer.length);
+/**/
+	// Ensure we can hold incoming data
+	if(targetBuffer.length <= targetLastOctetIndex){
+		throw new RangeError("Target buffer is too small, expected at least " + (targetLastOctetIndex + 1) + " octets but found only " + targetBuffer.length);
+	}
+
+	var sourceOctetIndex = sourceFirstOctetIndex;
+	var targetOctetIndex = targetFirstOctetIndex;
+
+	var sourceOctetStartBitOffset = sourceFirstBitIndex % 8;
+	var sourceOctetEndBitOffset = 7 - (sourceLastBitIndex) % 8;
+
+	var targetOctetStartBitOffset = targetFirstBitIndex % 8;
+	var targetOctetEndBitOffset = (targetOctetStartBitOffset + sourceBitCount - 1) % 8;
+
+	var shiftRight = sourceOctetStartBitOffset < targetOctetStartBitOffset;
+	var octetStartBitOffsetDiff = Math.abs(sourceOctetStartBitOffset - targetOctetStartBitOffset);
+	
+	var octetEndBitOffsetDiff = sourceOctetEndBitOffset + octetStartBitOffsetDiff;
+
+	var targetStartOctetMask = 0xFF << (8 - targetOctetStartBitOffset);
+	var targetEndOctetMask = 0xFF >>> targetOctetEndBitOffset;
+	//console.log('targetOctetStartBitOffset', targetOctetStartBitOffset, 'sourceBitCount', sourceBitCount);
+	//console.log('targetEndOctetMask', targetOctetEndBitOffset.toString(2));
+	var sourceOctet, 
+		targetOctet, 
+		temp,
+		overflow = 0;
+
+	while(targetOctetIndex <= targetLastOctetIndex){
+		sourceOctet = sourceBuffer[sourceOctetIndex];
+		targetOctet = targetBuffer[targetOctetIndex];
+		
+		if(shiftRight){
+			temp = sourceOctet >>> octetStartBitOffsetDiff & 0xFF;
+			temp |= overflow;
+
+			//console.log('sourceOctet', sourceOctet.toString(2));
+			//console.log('octetStartBitOffsetDiff', octetStartBitOffsetDiff);
+			//console.log('temp', temp.toString(2));
+
+			// If this is from the first block of the source, we need to clear the bits
+			// to the right, due to the offset
+			if(targetOctetIndex === targetFirstOctetIndex){
+				targetOctet &= targetStartOctetMask & 0xFF;
+				temp &= ~targetStartOctetMask & 0xFF;
+				targetOctet |= temp;
+			} else if(targetOctetIndex === targetLastOctetIndex){
+				targetOctet &= targetEndOctetMask & 0xFF;
+				temp &= ~targetEndOctetMask & 0xFF;
+				targetOctet |= temp;
+			} else {
+				targetOctet = temp;
+			}
+
+			overflow = sourceOctet << (8 - octetStartBitOffsetDiff) & 0xFF;
+			//console.log('overflow', overflow.toString(2));
+		} else {
+			temp = sourceOctet << octetStartBitOffsetDiff & 0xFF;
+
+			//console.log('source', sourceOctet.toString(2));
+			//console.log('shift left', octetStartBitOffsetDiff);
+			//console.log('temp', temp.toString(2));
+			//console.log('startMask', (~targetStartOctetMask & 0xFF).toString(2));
+
+			if(sourceOctetIndex < sourceLastOctetIndex){
+				temp |= sourceBuffer[sourceOctetIndex + 1] >>> (8 - octetStartBitOffsetDiff);
+			}
+
+			if(targetOctetIndex === targetFirstOctetIndex){
+				targetOctet &= targetStartOctetMask & 0xFF;
+				temp &= ~targetStartOctetMask & 0xFF;
+				targetOctet |= temp;
+			} else if (targetOctetIndex === targetLastOctetIndex){
+				//console.log('targetEndOctetMask', targetEndOctetMask.toString(2));
+				targetOctet &= targetEndOctetMask & 0xFF;
+				temp &= ~targetEndOctetMask & 0xFF;
+				targetOctet |= temp;
+			} else {
+				targetOctet = temp;
+			}
+		}
+		//console.log('targetOctet', targetOctet.toString(2));
+		targetBuffer[targetOctetIndex] = targetOctet;
+		
+		sourceOctetIndex++;
+		targetOctetIndex++;
+	}
+}

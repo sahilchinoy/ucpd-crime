@@ -1,0 +1,304 @@
+{% load static from staticfiles %}
+
+<div class="map" id="map" style="height:600px;"></div>
+
+<script type="text/template" id="legend-info-template">
+<p class="text-label">This map is colored according to <a href="https://en.wikipedia.org/wiki/Quantile">quantiles</a>: each color corresponds to an equal number of the {{ num_bins }} bins, excluding bins without any incidents.</p>
+</script>
+
+<script type="text/template" id="bin-template">
+<div class="hidden-xs">
+<p class="infobox-lead">Click to view incidents in this bin.</p>
+<table class="table table-condensed infobox-table">
+	<tr><th>Count: </th> <td><%- count %> </td></tr>
+	<tr><th>Per 1000: </th> <td><%- (per_capita*1000).toFixed(1) %> </td></tr>
+	<tr><th>Percentile: </th> <td><%- percentile.toFixed(1) %>% </td></tr>
+</table>
+</div>
+</script>
+
+<script type="text/template" id="bin-template-load">
+<p class="infobox-lead">Select a bin.</p>
+<div class="hidden-xs">
+<table class="table table-condensed infobox-table">
+	<tr><th>Count: </th> <td></td></tr>
+	<tr><th>Rank (of {{ num_bins }}): </th> <td></td></tr>
+	<tr><th>Per 1000: </th> <td></td></tr>
+</table>
+</div>
+</script>
+
+<script type="text/template" id="legend-template-scale">
+    <div class="legend-inner">
+        <div class="legend-title"><strong><%= title %></strong></div>
+
+        <style type="text/css">
+            .legend-key { width: <% print(100/Object.keys(items).length) %>%; text-align: <%- align %> }
+        </style>
+
+        <% _.each(items, function(key, val) { %>
+            <div class="legend-key" style="border-top:10px solid <%- key %>;"><span> <%- val %></span></div>
+        <% }); %>
+    </div>
+</script>
+
+<script type="text/template" id="severity-toggle-template">
+<div id="severity-switch" class="btn-group-vertical" role="group">
+	<form class="form">
+		Midnight &nbsp; <input id="hour-input" type="text" value="" data-slider-min="0" data-slider-max="23" data-slider-step="1" data-slider-value="[0,23]"/> &nbsp; 11 p.m.
+		<div class="checkbox">
+			<label>
+				<input class="target" type="checkbox" name="sex" value="V" checked> Violent
+			</label>
+		</div>
+
+		<div class="checkbox">
+			<label>
+				<input class="target" type="checkbox" name="sex" value="P" checked> Property
+			</label>
+		</div>
+
+		<div class="checkbox">
+			<label>
+				<input class="target" type="checkbox" name="sex" value="Q" checked> Quality of life
+			</label>
+		</div>
+
+	</form>
+</div>
+</script>
+
+<script type="text/template" id="locator-popup">
+<%- address %>
+<a href="/bins/<%- bin %>">Bin <%- bin %>
+</script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+	// some globals
+	var bins;
+	var geocoderMarker;
+	var geocoded = false;
+	var format = d3.format("0,000");
+
+	// create a map in the "map" div, set the view to a given place and zoom
+	var map = L.map('map', {
+		center: [37.8716844,-122.2576889],
+		zoom: 15,
+		minZoom: 14,
+		scrollWheelZoom: false,
+		maxBounds: [[37.833459, -122.325810],[37.929657, -122.211311]],
+		zoomControl: false,
+	});
+
+	// add an OpenStreetMap tile layer
+	var CartoDB_Positron = L.tileLayer('http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
+	    attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="http://cartodb.com/attributions">CartoDB</a>',
+	    subdomains: 'abcd',
+	    maxZoom: 19,
+	    detectRetina: true,
+	    opacity: 1,
+	}).addTo(map);
+
+	var CornerOverlay = L.Control.extend({
+	    initialize: function(html, position, extra_class) {
+	        html = typeof html !== 'undefined' ?  html : '';
+	        position = typeof position !== 'undefined' ?  position : 'bottomright';
+	        extra_class = typeof extra_class !== 'undefined' ?  extra_class : '';
+	        this._html = html;
+	        this._class = extra_class;
+	        this.options.position = position;
+	    },
+	    onAdd: function(map) {
+	        var container = L.DomUtil.create('div', 'overlay ' + this._class, L.DomUtil.get('map'));
+	        container.innerHTML = this._html;
+	        return container;
+	    },
+	    update: function(html) {
+	        this._html = html;
+	        this.getContainer().innerHTML = html;
+	    },
+	    hide: function() {
+	        $( this.getContainer() ).css('display','none');
+	    },
+	    show: function() {
+	        $( this.getContainer() ).css('display','block');
+	    }
+	});
+
+	var legendTemplateScale = _.template($('#legend-template-scale').html());
+
+	var Legend = CornerOverlay.extend({
+		    onAdd: function(map) {
+		        var container = L.DomUtil.create('div', 'overlay legend', L.DomUtil.get('map'));
+		        container.innerHTML = this._html;
+		        return container;
+		    },
+		    addData: function(legendData) {
+		        var defaults = {align: 'left', template: 'scale'};
+		        var opts = _.extend(defaults, legendData)
+		        if (opts.template == 'swatch') {
+	                var html = legendTemplateSwatch(opts);
+	            } else {
+	                var html = legendTemplateScale(opts);
+	            }
+	            this.update(html);
+		    },
+		});
+
+
+	var severitytoggle = new CornerOverlay($('#severity-toggle-template').html(),'topright');
+	map.addControl(severitytoggle);
+
+	var total_label = new CornerOverlay('<p class="text-label">Showing <span class="lbl" id="total-count"></span> incidents.</p>','topleft','total-label')
+	map.addControl(total_label);
+
+	var zoom = new L.control.zoom({position: 'topleft'})
+	map.addControl(zoom);
+
+	var fullscreen = new L.Control.Fullscreen;
+	map.addControl(fullscreen);
+
+	var legend = new Legend('','bottomright');
+	map.addControl(legend);
+
+	$('#severity-switch .btn').on('click', function() {
+		$('#severity-switch .btn').removeClass('active');
+		$(this).addClass('active');
+	});
+
+	var binStyle = function(featureData) {
+		return base_style;
+	}
+
+	//var colors = ['rgb(255,255,212)','rgb(254,217,142)','rgb(254,153,41)','rgb(217,95,14)','rgb(153,52,4)'];
+	var colors = ['rgb(254,240,217)','rgb(253,212,158)','rgb(253,187,132)','rgb(252,141,89)','rgb(239,101,72)','rgb(215,48,31)','rgb(153,0,0)'];
+	var colorscale = d3.scale.quantile();
+	var maximums;
+	var base_style = {
+		fillColor: 'grey',
+		fillOpacity: 0,
+		stroke: true,
+		color: 'white',
+		weight: 1,
+	}
+
+	var color_bins = function(counts) {
+		var bin_layers = bins.getLayers();
+
+		counts_array = [];
+		for (var i=0; i<bin_layers.length; i++) {
+			var bin = bin_layers[i];
+			var id = bin.feature.properties.id;
+			bin.count = counts[id] || 0;
+			if (bin.count > 0) {
+				counts_array.push(bin.count);
+			}
+		}
+
+		colorscale = colorscale.domain(counts_array).range(colors);
+
+		var keys = colorscale.quantiles().slice();
+		//keys.unshift(1);
+		var _items = {}
+
+		for (var i=0; i<keys.length; i++) {
+			if (i == keys.length-1) {
+				_items[keys[i].toFixed(0) + '+'] = colors[i]
+			} else {
+				_items[keys[i].toFixed(0)] = colors[i];
+			}
+		}
+
+		var legend_title= 'Number of incidents'
+
+		var legendData  = {
+			'title': legend_title,
+			'items': _items,
+		}
+		legend.addData(legendData);
+
+		for (var i=0; i<bin_layers.length; i++) {
+			var _count = bin_layers[i].count;
+			if (_count < 1) {
+				var _color = 'grey';
+				var _opacity = 0;
+				map.removeLayer(bin_layers[i]);
+			} else {
+				bin_layers[i].addTo(map);
+				var _color = colorscale(_count);
+				var _opacity = 0.6;
+			}
+
+			var style = _.extend(
+				base_style,
+				{
+					fillColor: _color,
+					fillOpacity: _opacity
+				});
+			bin_layers[i].setStyle(style);
+		}
+	}
+
+	$.getJSON("{% url 'bins-json' %}", function(response) {
+		bins = L.geoJson(response, {
+			style: binStyle,
+		}).addTo(map);
+
+		view.render();
+	});
+
+	/* Takes array of incidents and returns number of incidents in each bin */
+	function get_bin_counts(data) {
+		return _.countBy(data, function(incident) {
+			return incident.bin;
+		});
+	}
+
+	$.ajax("{% static 'json/packed.json' %}", {
+	       success: function(data) {
+	          data = Tamper.unpackData(data);
+	          console.log(data);
+	          collection = new PourOver.Collection(data);
+	          var category_filter = PourOver.makeInclusionFilter("category",["Q","V","P"]);
+	          var year_filter = PourOver.makeDVrangeFilter("year",["2007","2008","2009","2010","2011","2014","2015"]);
+	          var hour_filter = PourOver.makeDVrangeFilter("hour",["0","1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23"]);
+	          collection.addFilters([category_filter, year_filter, hour_filter]);
+
+	          BinCountView = PourOver.View.extend({
+	          	render: function(){
+	          		var items = this.getCurrentItems();
+	          		bin_counts = get_bin_counts(items);
+	          		color_bins(bin_counts);
+					$('#total-count').html(format(items.length));
+	          	}
+	          });
+
+	          view = new BinCountView("default_view", collection);
+
+	}});
+
+	$('.target').change(function() {
+		var checkedVals = $('.target:checkbox:checked').map(function() {
+	    	return this.value;
+		}).get();
+		if (checkedVals.length > 0) {
+			view.collection.filters.category.query(checkedVals);
+			view.render();
+		} else {
+			view.collection.filters.category.clearQuery();
+			view.render();
+		}
+	});
+
+	$("#hour-input").slider({});
+
+	$("#hour-input").on("slide", function(slideEvt) {
+		begin = slideEvt.value[0].toString();
+		end = slideEvt.value[1].toString();
+		hours = [begin,end];
+		view.collection.filters.hour.query(hours);
+		view.render();
+	});
+});
+</script>

@@ -1,0 +1,8 @@
+var Bitsy = require('./Bitsy');
+
+module.exports = createBitsy;
+function createBitsy(size){
+	return new Bitsy(size);
+}
+
+createBitsy.Bitsy = Bitsy;

@@ -1,0 +1,126 @@
+var createBitsy = require('../lib/createBitsy');
+var copy = require('../lib/copy');
+
+describe('copy', function(){
+	it('is a noop when source buffer is empty', function(){
+		var source = createBitsy();
+		var destination = createBitsy();
+
+		copy(source.getBuffer(), destination.getBuffer());
+
+		expect(source.toString()).toBe('');
+		expect(source.length).toBe(0);
+	});
+
+	it('clears set bits when copying', function(){
+		var source = createBitsy(11);
+		var destination = createBitsy(11);
+		
+		destination.set(10, true);
+
+		copy(source.getBuffer(), destination.getBuffer(), 0, source.length);
+
+		expect(destination.toString()).toBe(source.toString());
+		expect(destination.get(10)).toBe(false);
+	});
+
+	it('handles aligned copy (simple copy)', function(){
+		var source = createBitsy(101);
+
+		[1,8,10,80,81,82,83,84,85,86,87,88,90].forEach(function(bitIndex){
+			source.set(bitIndex, true);
+		});
+
+		var destination = createBitsy(101);
+		copy(source.getBuffer(), destination.getBuffer(), 0, source.length);
+
+		expect(source.toString()).toBe(destination.toString());
+	});
+
+	it('handles source shifting', function(){
+		var source = createBitsy(100);
+
+		[1,8,10,80,81,82,83,84,85,86,87,88,90].forEach(function(bitIndex){
+			source.set(bitIndex, true);
+		});
+
+		var destination = createBitsy(101);
+
+		copy(source.getBuffer(), destination.getBuffer(), 10, source.length);
+
+		expect(destination.get(70)).toBe(true);
+	});
+
+	it('handles destination right shift', function(){
+		var source = createBitsy(101);
+
+		[1,8,10,80,81,82,83,84,85,86,87,88,90].forEach(function(bitIndex){
+			source.set(bitIndex, true);
+		});
+
+		var destination = createBitsy(source.length + 10);
+		copy(source.getBuffer(), destination.getBuffer(), 0, source.length, 10);
+
+		expect(destination.get(18)).toBe(true);
+	});
+
+	it('handles source and destination shifting', function(){
+		var source = createBitsy(101);
+
+		[1,8,10,80,81,82,83,84,85,86,87,88,90].forEach(function(bitIndex){
+			source.set(bitIndex, true);
+		});
+
+		var destination = createBitsy(source.length + 5);
+		copy(source.getBuffer(), destination.getBuffer(), 5, source.length, 10);
+
+		expect(destination.get(13)).toBe(true);
+	});
+
+	it('can copy a subset from the source', function(){
+		var source = createBitsy(101);
+
+		[1,8,10,80,81,82,83,84,85,86,87,88,90].forEach(function(bitIndex){
+			source.set(bitIndex, true);
+		});
+
+		var destination = createBitsy(101);
+		copy(source.getBuffer(), destination.getBuffer(), 5, 50, 10);
+
+		// this is bit 8 in source should equal bit 13 in dest
+		expect(destination.get(13)).toBe(true);
+
+		var search = 16, count = 0;
+		while(search--){
+			if(destination.get(search)) count++;
+		}
+
+		expect(count).toBe(2); // we should only detect 8 and 10 from source
+	});
+
+	it('throws an error when source or target is not a buffer', function(){
+		var source = createBitsy(101);
+		var destination = createBitsy(0);
+		
+		expect(function(){
+			copy(source, destination.getBuffer());
+		}).toThrow();
+		
+		expect(function(){
+			copy(source.getBuffer(), destination);
+		}).toThrow();
+		
+		expect(function(){
+			copy();
+		}).toThrow();
+	});
+
+	it('throws an error when target buffer isn\'t large enough to copy to', function(){
+		var source = createBitsy(101);
+		var destination = createBitsy(0);
+		
+		expect(function(){
+			copy(source.getBuffer(), destination.getBuffer());
+		}).toThrow();
+	});
+});

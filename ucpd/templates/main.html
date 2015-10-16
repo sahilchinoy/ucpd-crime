@@ -1,0 +1,201 @@
+{% extends "base.html" %}
+
+{% load static from staticfiles %}
+{% load humanize %}
+
+{% block title %}Crime in Berkeley{% endblock %}
+
+{% block extra-css %}
+<link rel="stylesheet" href="https://cdn.datatables.net/plug-ins/1.10.7/integration/bootstrap/3/dataTables.bootstrap.css">
+<link rel="stylesheet" href="https://cdn.rawgit.com/datadesk/jquery-geocodify/master/jquery.geocodify.css">
+<link href='//api.tiles.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v0.0.2/leaflet.fullscreen.css' rel='stylesheet' />
+<link href='https://cdn.rawgit.com/seiyria/bootstrap-slider/master/dist/css/bootstrap-slider.min.css' rel='stylesheet' />
+<link rel="stylesheet" href="{% static 'css/tipped.css' %}">
+
+<style type"text/css">
+	#map {
+		margin: 20px 0;
+	}
+
+	.leaflet-label {
+		background: rgb(235, 235, 235);
+		background: rgba(235, 235, 235, 0.81);
+		background-clip: padding-box;
+		color: #111;
+		display: block;
+		font: 12px/20px "Helvetica Neue", Arial, Helvetica, sans-serif;
+		padding: 1px 6px;
+		position: absolute;
+		-webkit-user-select: none;
+		   -moz-user-select: none;
+		    -ms-user-select: none;
+		        user-select: none;
+		pointer-events: none;
+		white-space: nowrap;
+		z-index: 6;
+	}
+
+	.leaflet-label.leaflet-clickable {
+		cursor: pointer;
+		pointer-events: auto;
+	}
+
+	.infobox {
+	    padding: 6px 8px;
+	    background: white;
+	    background: rgba(255,255,255,0.9);
+	    width: 200px;
+	    border: none;
+	}
+	.infobox table {
+		text-align: right;
+	}
+	.infobox-lead {
+		text-align: center;
+	}
+	.infobox-table {
+		margin-bottom: 2px;
+	}
+	.btn {
+		font-weight: bold;
+		font-size: 12px;
+	}
+	.lbl {
+		font-weight: bold;
+	}
+    /* For legend generation */
+    .legend-title {
+        margin-bottom: 5px;
+    }
+    .legend-key {
+        float:left;
+        font:10px Arial,
+        sans-serif;
+        color:#333;
+    }
+    .legend-key span {
+    	margin-left:-3px;
+        line-height:20px;
+    }
+    .legend-swatch {
+        display:inline-block;
+        height:14px;
+        width:14px;
+        margin:0 10px 0 0;
+        position:relative;
+        bottom:-2px;
+        background-color:#ccc;
+        border-radius:10px;
+        -moz-border-radius:10px;
+        -webkit-border-radius:10px;
+    }
+    .map .legend {
+    	width: 250px;
+    	margin:0;
+        padding:6px 8px;
+        background-color:#fff;
+        background-color:rgba(255,255,255,0.9);
+    }
+    input.geocodify {
+    	font-size: 14px;
+    }
+    .geocodify-dropdown ul li {
+    	font-size: 14px;
+    }
+    .leaflet-bar {
+    	box-shadow: none;
+    }
+    .leaflet-popup-content-wrapper, .leaflet-popup-tip {
+    	box-shadow: none;
+    	color: white;
+    	background-color: rgba(0,0,0,0.9);
+    	border-radius: 0;
+    	line-height: 1;
+    }
+    .leaflet-popup-content h4 {
+    	margin-bottom: 0px;
+    }
+    .leaflet-popup-content h4 a {
+    	font-family: Georgia;
+    	text-transform: uppercase;
+    	color: white;
+    	text-decoration: underline;
+    }
+    .table tbody tr td.no-border {
+    	border-top: none;
+    }
+    table.offense-table tr td {
+    	padding: 4px;
+    }
+
+    .updated {
+    	color: red;
+    	text-transform: uppercase;
+    	font-size: 11px;
+    	font-weight: bold;
+    }
+    h1.main-title {
+    	margin-top: 0;
+    }
+
+    .total-label {
+    	font-size: 14px;
+    }
+    @media (max-width: 768px) {
+    	.legend {
+    		display: none;
+    	}
+    }
+</style>
+
+{% endblock %}
+
+{% block extra-js %}
+
+<script src="https://cdn.datatables.net/1.10.7/js/jquery.dataTables.min.js" type="text/javascript"></script>
+<script src="https://cdn.datatables.net/plug-ins/1.10.7/integration/bootstrap/3/dataTables.bootstrap.js" type="text/javascript"></script>
+<script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?sensor=false"></script>
+<script src="https://cdn.rawgit.com/datadesk/jquery-geocodify/master/jquery.geocodify.js" type="text/javascript"></script>
+<script src="http://api.tiles.mapbox.com/mapbox.js/plugins/turf/v2.0.0/turf.min.js" type="text/javascript"></script>
+<script src="https://cdn.rawgit.com/Leaflet/Leaflet.label/master/dist/leaflet.label-src.js" type="text/javascript"></script>
+<script src="https://cdn.rawgit.com/Leaflet/Leaflet.fullscreen/gh-pages/dist/Leaflet.fullscreen.min.js" type="text/javascript"></script>
+<script src="https://cdn.rawgit.com/seiyria/bootstrap-slider/master/dist/bootstrap-slider.min.js"></script>
+<script src="{% static 'js/tipped.js' %}" type="text/javascript"></script>
+<script src="{% static 'js/pourover.js' %}" type="text/javascript"></script>
+<script src="{% static 'js/tamper.js' %}" type="text/javascript"></script>
+
+
+{% endblock %}
+
+{% block content %}
+
+	<div class="container">
+
+	<div class="row">
+		<div class="center-block" style="max-width: 600px">
+		<h1 class="main-title text-center">Crime in Berkeley</h1>
+
+		<p>The Daily Californian retrieves, processes and analyzes incident-level crime reports from the Berkeley Police Department. We categorize incidents by type and locate each within one of {{ num_bins }} bins, creating detailed maps of absolute and per-capita crime rates. This page is regularly updated with the latest BPD data.</p>
+
+		<p><a>Explore the map</a> and select a bin for a comparative analysis, <a>check the latest crime reports</a> or <a>read about our methodology</a>.</p>
+		</div>
+	</div>
+
+	<div class="col-md-12">
+		<hr>
+		{% include 'map.html' %}
+	</div>
+
+	<div class="col-md-12">
+		<hr>
+		{% include 'heatmap.html' %}
+	</div>
+
+	<hr>
+
+	</div>
+
+	
+
+
+{% endblock %}

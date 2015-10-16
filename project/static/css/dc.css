@@ -1,0 +1,87 @@
+body {
+	padding: 70px 0;
+}
+h1, h2 {
+	font-family: Georgia;
+	text-transform: uppercase;
+}
+p.text-label {
+	font-family: Helvetica;
+}
+p {
+	font-family: Georgia;
+}
+.logo {
+	width: 200px;
+}
+.navbar {
+	border-radius: 0;
+}
+.navbar a {
+	-o-transition:.5s;
+	-ms-transition:.5s;
+	-moz-transition:.5s;
+	-webkit-transition:.5s;
+	transition:.5s;
+}
+.navbar-center {
+    position: absolute;
+    width: 100%;
+    left: 0;
+    text-align: center;
+    margin: auto;
+}
+.navbar-brand {
+	height: auto;
+	padding-top: 8px ;
+	padding-bottom:0px;
+}
+h2.navbar-title, h2.small-brand {
+	margin-top: 8px;
+}
+h2.navbar-title a {
+	color: white;
+}
+h2.navbar-title a:hover {
+	color: white;
+}
+h2.small-brand a:hover {
+	color: white;
+	text-decoration: none;
+}
+.navbar-header {
+	z-index: 1000;
+}
+h2.small-brand a {
+	font-size: 30px;
+	font-family: Georgia;
+	text-transform: uppercase;
+	margin-right: 20px;
+	color: rgb(157,157,157);
+}
+h3 {
+	font-family: Georgia;
+	font-weight: bold;
+}
+.small-nav li {
+	font-family: Georgia;
+	text-transform: uppercase;
+	color: white;
+	font-size: 16px;
+	z-index: 1000;
+}
+.small-nav li a {
+	padding: 15px 5px;
+}
+.small-nav li a.separator:hover {
+	color: rgb(157,157,157);
+}
+.small-nav li a.active {
+	color: white;
+}
+.small-nav a:hover {
+	color: black;
+}
+body {
+	padding-bottom: 20px;
+}

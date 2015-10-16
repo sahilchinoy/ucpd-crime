@@ -1,0 +1,844 @@
+{
+"days": [
+{
+"value": 23,
+"day": 1,
+"hour": 1
+},
+{
+"value": 17,
+"day": 1,
+"hour": 2
+},
+{
+"value": 10,
+"day": 1,
+"hour": 3
+},
+{
+"value": 7,
+"day": 1,
+"hour": 4
+},
+{
+"value": 6,
+"day": 1,
+"hour": 5
+},
+{
+"value": 6,
+"day": 1,
+"hour": 6
+},
+{
+"value": 3,
+"day": 1,
+"hour": 7
+},
+{
+"value": 11,
+"day": 1,
+"hour": 8
+},
+{
+"value": 12,
+"day": 1,
+"hour": 9
+},
+{
+"value": 19,
+"day": 1,
+"hour": 10
+},
+{
+"value": 26,
+"day": 1,
+"hour": 11
+},
+{
+"value": 35,
+"day": 1,
+"hour": 12
+},
+{
+"value": 21,
+"day": 1,
+"hour": 13
+},
+{
+"value": 41,
+"day": 1,
+"hour": 14
+},
+{
+"value": 30,
+"day": 1,
+"hour": 15
+},
+{
+"value": 30,
+"day": 1,
+"hour": 16
+},
+{
+"value": 25,
+"day": 1,
+"hour": 17
+},
+{
+"value": 41,
+"day": 1,
+"hour": 18
+},
+{
+"value": 31,
+"day": 1,
+"hour": 19
+},
+{
+"value": 36,
+"day": 1,
+"hour": 20
+},
+{
+"value": 28,
+"day": 1,
+"hour": 21
+},
+{
+"value": 29,
+"day": 1,
+"hour": 22
+},
+{
+"value": 26,
+"day": 1,
+"hour": 23
+},
+{
+"value": 23,
+"day": 1,
+"hour": 24
+},
+{
+"value": 14,
+"day": 2,
+"hour": 1
+},
+{
+"value": 13,
+"day": 2,
+"hour": 2
+},
+{
+"value": 13,
+"day": 2,
+"hour": 3
+},
+{
+"value": 4,
+"day": 2,
+"hour": 4
+},
+{
+"value": 8,
+"day": 2,
+"hour": 5
+},
+{
+"value": 5,
+"day": 2,
+"hour": 6
+},
+{
+"value": 12,
+"day": 2,
+"hour": 7
+},
+{
+"value": 32,
+"day": 2,
+"hour": 8
+},
+{
+"value": 64,
+"day": 2,
+"hour": 9
+},
+{
+"value": 80,
+"day": 2,
+"hour": 10
+},
+{
+"value": 88,
+"day": 2,
+"hour": 11
+},
+{
+"value": 94,
+"day": 2,
+"hour": 12
+},
+{
+"value": 95,
+"day": 2,
+"hour": 13
+},
+{
+"value": 106,
+"day": 2,
+"hour": 14
+},
+{
+"value": 99,
+"day": 2,
+"hour": 15
+},
+{
+"value": 98,
+"day": 2,
+"hour": 16
+},
+{
+"value": 83,
+"day": 2,
+"hour": 17
+},
+{
+"value": 57,
+"day": 2,
+"hour": 18
+},
+{
+"value": 57,
+"day": 2,
+"hour": 19
+},
+{
+"value": 56,
+"day": 2,
+"hour": 20
+},
+{
+"value": 45,
+"day": 2,
+"hour": 21
+},
+{
+"value": 53,
+"day": 2,
+"hour": 22
+},
+{
+"value": 32,
+"day": 2,
+"hour": 23
+},
+{
+"value": 21,
+"day": 2,
+"hour": 24
+},
+{
+"value": 9,
+"day": 3,
+"hour": 1
+},
+{
+"value": 12,
+"day": 3,
+"hour": 2
+},
+{
+"value": 9,
+"day": 3,
+"hour": 3
+},
+{
+"value": 5,
+"day": 3,
+"hour": 4
+},
+{
+"value": 3,
+"day": 3,
+"hour": 5
+},
+{
+"value": 2,
+"day": 3,
+"hour": 6
+},
+{
+"value": 5,
+"day": 3,
+"hour": 7
+},
+{
+"value": 30,
+"day": 3,
+"hour": 8
+},
+{
+"value": 57,
+"day": 3,
+"hour": 9
+},
+{
+"value": 74,
+"day": 3,
+"hour": 10
+},
+{
+"value": 57,
+"day": 3,
+"hour": 11
+},
+{
+"value": 92,
+"day": 3,
+"hour": 12
+},
+{
+"value": 89,
+"day": 3,
+"hour": 13
+},
+{
+"value": 102,
+"day": 3,
+"hour": 14
+},
+{
+"value": 100,
+"day": 3,
+"hour": 15
+},
+{
+"value": 100,
+"day": 3,
+"hour": 16
+},
+{
+"value": 94,
+"day": 3,
+"hour": 17
+},
+{
+"value": 81,
+"day": 3,
+"hour": 18
+},
+{
+"value": 71,
+"day": 3,
+"hour": 19
+},
+{
+"value": 51,
+"day": 3,
+"hour": 20
+},
+{
+"value": 42,
+"day": 3,
+"hour": 21
+},
+{
+"value": 41,
+"day": 3,
+"hour": 22
+},
+{
+"value": 35,
+"day": 3,
+"hour": 23
+},
+{
+"value": 21,
+"day": 3,
+"hour": 24
+},
+{
+"value": 13,
+"day": 4,
+"hour": 1
+},
+{
+"value": 13,
+"day": 4,
+"hour": 2
+},
+{
+"value": 10,
+"day": 4,
+"hour": 3
+},
+{
+"value": 3,
+"day": 4,
+"hour": 4
+},
+{
+"value": 5,
+"day": 4,
+"hour": 5
+},
+{
+"value": 6,
+"day": 4,
+"hour": 6
+},
+{
+"value": 5,
+"day": 4,
+"hour": 7
+},
+{
+"value": 14,
+"day": 4,
+"hour": 8
+},
+{
+"value": 55,
+"day": 4,
+"hour": 9
+},
+{
+"value": 76,
+"day": 4,
+"hour": 10
+},
+{
+"value": 69,
+"day": 4,
+"hour": 11
+},
+{
+"value": 71,
+"day": 4,
+"hour": 12
+},
+{
+"value": 85,
+"day": 4,
+"hour": 13
+},
+{
+"value": 108,
+"day": 4,
+"hour": 14
+},
+{
+"value": 98,
+"day": 4,
+"hour": 15
+},
+{
+"value": 110,
+"day": 4,
+"hour": 16
+},
+{
+"value": 99,
+"day": 4,
+"hour": 17
+},
+{
+"value": 71,
+"day": 4,
+"hour": 18
+},
+{
+"value": 45,
+"day": 4,
+"hour": 19
+},
+{
+"value": 49,
+"day": 4,
+"hour": 20
+},
+{
+"value": 52,
+"day": 4,
+"hour": 21
+},
+{
+"value": 30,
+"day": 4,
+"hour": 22
+},
+{
+"value": 38,
+"day": 4,
+"hour": 23
+},
+{
+"value": 14,
+"day": 4,
+"hour": 24
+},
+{
+"value": 13,
+"day": 5,
+"hour": 1
+},
+{
+"value": 14,
+"day": 5,
+"hour": 2
+},
+{
+"value": 7,
+"day": 5,
+"hour": 3
+},
+{
+"value": 4,
+"day": 5,
+"hour": 4
+},
+{
+"value": 3,
+"day": 5,
+"hour": 5
+},
+{
+"value": 6,
+"day": 5,
+"hour": 6
+},
+{
+"value": 8,
+"day": 5,
+"hour": 7
+},
+{
+"value": 24,
+"day": 5,
+"hour": 8
+},
+{
+"value": 40,
+"day": 5,
+"hour": 9
+},
+{
+"value": 64,
+"day": 5,
+"hour": 10
+},
+{
+"value": 70,
+"day": 5,
+"hour": 11
+},
+{
+"value": 88,
+"day": 5,
+"hour": 12
+},
+{
+"value": 86,
+"day": 5,
+"hour": 13
+},
+{
+"value": 89,
+"day": 5,
+"hour": 14
+},
+{
+"value": 92,
+"day": 5,
+"hour": 15
+},
+{
+"value": 114,
+"day": 5,
+"hour": 16
+},
+{
+"value": 77,
+"day": 5,
+"hour": 17
+},
+{
+"value": 84,
+"day": 5,
+"hour": 18
+},
+{
+"value": 58,
+"day": 5,
+"hour": 19
+},
+{
+"value": 53,
+"day": 5,
+"hour": 20
+},
+{
+"value": 51,
+"day": 5,
+"hour": 21
+},
+{
+"value": 43,
+"day": 5,
+"hour": 22
+},
+{
+"value": 35,
+"day": 5,
+"hour": 23
+},
+{
+"value": 29,
+"day": 5,
+"hour": 24
+},
+{
+"value": 19,
+"day": 6,
+"hour": 1
+},
+{
+"value": 17,
+"day": 6,
+"hour": 2
+},
+{
+"value": 13,
+"day": 6,
+"hour": 3
+},
+{
+"value": 7,
+"day": 6,
+"hour": 4
+},
+{
+"value": 1,
+"day": 6,
+"hour": 5
+},
+{
+"value": 3,
+"day": 6,
+"hour": 6
+},
+{
+"value": 10,
+"day": 6,
+"hour": 7
+},
+{
+"value": 17,
+"day": 6,
+"hour": 8
+},
+{
+"value": 35,
+"day": 6,
+"hour": 9
+},
+{
+"value": 70,
+"day": 6,
+"hour": 10
+},
+{
+"value": 73,
+"day": 6,
+"hour": 11
+},
+{
+"value": 72,
+"day": 6,
+"hour": 12
+},
+{
+"value": 80,
+"day": 6,
+"hour": 13
+},
+{
+"value": 78,
+"day": 6,
+"hour": 14
+},
+{
+"value": 86,
+"day": 6,
+"hour": 15
+},
+{
+"value": 79,
+"day": 6,
+"hour": 16
+},
+{
+"value": 82,
+"day": 6,
+"hour": 17
+},
+{
+"value": 58,
+"day": 6,
+"hour": 18
+},
+{
+"value": 61,
+"day": 6,
+"hour": 19
+},
+{
+"value": 41,
+"day": 6,
+"hour": 20
+},
+{
+"value": 39,
+"day": 6,
+"hour": 21
+},
+{
+"value": 37,
+"day": 6,
+"hour": 22
+},
+{
+"value": 34,
+"day": 6,
+"hour": 23
+},
+{
+"value": 26,
+"day": 6,
+"hour": 24
+},
+{
+"value": 29,
+"day": 7,
+"hour": 1
+},
+{
+"value": 12,
+"day": 7,
+"hour": 2
+},
+{
+"value": 11,
+"day": 7,
+"hour": 3
+},
+{
+"value": 6,
+"day": 7,
+"hour": 4
+},
+{
+"value": 7,
+"day": 7,
+"hour": 5
+},
+{
+"value": 5,
+"day": 7,
+"hour": 6
+},
+{
+"value": 2,
+"day": 7,
+"hour": 7
+},
+{
+"value": 9,
+"day": 7,
+"hour": 8
+},
+{
+"value": 20,
+"day": 7,
+"hour": 9
+},
+{
+"value": 22,
+"day": 7,
+"hour": 10
+},
+{
+"value": 33,
+"day": 7,
+"hour": 11
+},
+{
+"value": 31,
+"day": 7,
+"hour": 12
+},
+{
+"value": 42,
+"day": 7,
+"hour": 13
+},
+{
+"value": 42,
+"day": 7,
+"hour": 14
+},
+{
+"value": 41,
+"day": 7,
+"hour": 15
+},
+{
+"value": 43,
+"day": 7,
+"hour": 16
+},
+{
+"value": 49,
+"day": 7,
+"hour": 17
+},
+{
+"value": 55,
+"day": 7,
+"hour": 18
+},
+{
+"value": 46,
+"day": 7,
+"hour": 19
+},
+{
+"value": 27,
+"day": 7,
+"hour": 20
+},
+{
+"value": 13,
+"day": 7,
+"hour": 21
+},
+{
+"value": 26,
+"day": 7,
+"hour": 22
+},
+{
+"value": 31,
+"day": 7,
+"hour": 23
+},
+{
+"value": 23,
+"day": 7,
+"hour": 24
+}
+]
+}
