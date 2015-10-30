@@ -6,45 +6,17 @@
 {% block title %}Crime in Berkeley{% endblock %}
 
 {% block extra-css %}
-<link rel="stylesheet" href="https://cdn.datatables.net/plug-ins/1.10.7/integration/bootstrap/3/dataTables.bootstrap.css">
-<link rel="stylesheet" href="https://cdn.rawgit.com/datadesk/jquery-geocodify/master/jquery.geocodify.css">
-<link href='//api.tiles.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v0.0.2/leaflet.fullscreen.css' rel='stylesheet' />
-<link href='https://cdn.rawgit.com/seiyria/bootstrap-slider/master/dist/css/bootstrap-slider.min.css' rel='stylesheet' />
-<link rel="stylesheet" href="{% static 'css/tipped.css' %}">
+<link href="https://cdn.datatables.net/plug-ins/1.10.7/integration/bootstrap/3/dataTables.bootstrap.css" rel="stylesheet" />
+<link href="https://cdn.rawgit.com/datadesk/jquery-geocodify/master/jquery.geocodify.css" rel="stylesheet" />
+<link href="//api.tiles.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v0.0.2/leaflet.fullscreen.css" rel="stylesheet" />
+<link href="https://cdn.rawgit.com/seiyria/bootstrap-slider/master/dist/css/bootstrap-slider.min.css" rel="stylesheet" />
+<link href="{% static 'css/tipped.css' %}" rel="stylesheet" />
 
 <style type"text/css">
-	#map {
-		margin: 20px 0;
-	}
-
-	.leaflet-label {
-		background: rgb(235, 235, 235);
-		background: rgba(235, 235, 235, 0.81);
-		background-clip: padding-box;
-		color: #111;
-		display: block;
-		font: 12px/20px "Helvetica Neue", Arial, Helvetica, sans-serif;
-		padding: 1px 6px;
-		position: absolute;
-		-webkit-user-select: none;
-		   -moz-user-select: none;
-		    -ms-user-select: none;
-		        user-select: none;
-		pointer-events: none;
-		white-space: nowrap;
-		z-index: 6;
-	}
-
-	.leaflet-label.leaflet-clickable {
-		cursor: pointer;
-		pointer-events: auto;
-	}
-
 	.infobox {
-	    padding: 6px 8px;
+	    padding: 1px 6px;
 	    background: white;
 	    background: rgba(255,255,255,0.9);
-	    width: 200px;
 	    border: none;
 	}
 	.infobox table {
@@ -138,6 +110,11 @@
     	margin-top: 0;
     }
 
+    p.byline {
+        text-transform: uppercase;
+        text-align: center;
+    }
+
     .total-label {
     	font-size: 14px;
     }
@@ -174,10 +151,10 @@
 	<div class="row">
 		<div class="center-block" style="max-width: 600px">
 		<h1 class="main-title text-center">Crime in Berkeley</h1>
+        <p class="byline">By Sahil Chinoy and Thomas Kim</p>
 
-		<p>The Daily Californian retrieves, processes and analyzes incident-level crime reports from the Berkeley Police Department. We categorize incidents by type and locate each within one of {{ num_bins }} bins, creating detailed maps of absolute and per-capita crime rates. This page is regularly updated with the latest BPD data.</p>
-
-		<p><a>Explore the map</a> and select a bin for a comparative analysis, <a>check the latest crime reports</a> or <a>read about our methodology</a>.</p>
+		<p>The Daily Californian analyzed five years of UCPD crime logs</p>
+        
 		</div>
 	</div>
 

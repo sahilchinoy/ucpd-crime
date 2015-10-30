@@ -1,51 +1,73 @@
-    {% load static from staticfiles %}
+{% load static from staticfiles %}
 
-    <div class="map" id="map" style="height:600px;"></div>
+<style type="text/css">
+#map {
+    height: 600px;
+    margin: 20px 0;
+}
 
-    <script type="text/template" id="legend-info-template">
-    <p class="text-label">This map is colored according to <a href="https://en.wikipedia.org/wiki/Quantile">quantiles</a>: each color corresponds to an equal number of the {{ num_bins }} bins, excluding bins without any incidents.</p>
-    </script>
+.overlay {
+    padding: 0 8px;
+    background-color: #fff;
+    background-color: rgba(255,255,255,0.9);
+}
 
-    <script type="text/template" id="bin-template">
-    <div class="hidden-xs">
-    <p class="infobox-lead">Click to view incidents in this bin.</p>
-    <table class="table table-condensed infobox-table">
-        <tr><th>Count: </th> <td><%- count %> </td></tr>
-        <tr><th>Per 1000: </th> <td><%- (per_capita*1000).toFixed(1) %> </td></tr>
-        <tr><th>Percentile: </th> <td><%- percentile.toFixed(1) %>% </td></tr>
-    </table>
+#hour-slider {
+    width: 100px;
+}
+
+#hour-slider .slider-handle {
+    width: 12px;
+    height: 12px;
+    margin-left: -5px;
+    margin-top: 0;
+}
+
+</style>
+
+<div class="map" id="map" style="height:600px;"></div>
+
+<script type="text/template" id="bin-template">
+<div class="hidden-xs">
+<p class="infobox-lead">Click to view incidents in this bin.</p>
+<table class="table table-condensed infobox-table">
+    <tr><th>Count: </th> <td><%- count %> </td></tr>
+    <tr><th>Per 1000: </th> <td><%- (per_capita*1000).toFixed(1) %> </td></tr>
+    <tr><th>Percentile: </th> <td><%- percentile.toFixed(1) %>% </td></tr>
+</table>
+</div>
+</script>
+
+<script type="text/template" id="bin-template-load">
+<p class="infobox-lead">Select a bin.</p>
+<div class="hidden-xs">
+<table class="table table-condensed infobox-table">
+    <tr><th>Count: </th> <td></td></tr>
+    <tr><th>Rank (of {{ num_bins }}): </th> <td></td></tr>
+    <tr><th>Per 1000: </th> <td></td></tr>
+</table>
+</div>
+</script>
+
+<script type="text/template" id="legend-template-scale">
+    <div class="legend-inner">
+        <div class="legend-title"><strong><%= title %></strong></div>
+
+        <style type="text/css">
+            .legend-key { width: <% print(100/Object.keys(items).length) %>%; text-align: <%- align %> }
+        </style>
+
+        <% _.each(items, function(key, val) { %>
+            <div class="legend-key" style="border-top:10px solid <%- key %>;"><span> <%- val %></span></div>
+        <% }); %>
     </div>
-    </script>
+</script>
 
-    <script type="text/template" id="bin-template-load">
-    <p class="infobox-lead">Select a bin.</p>
-    <div class="hidden-xs">
-    <table class="table table-condensed infobox-table">
-        <tr><th>Count: </th> <td></td></tr>
-        <tr><th>Rank (of {{ num_bins }}): </th> <td></td></tr>
-        <tr><th>Per 1000: </th> <td></td></tr>
-    </table>
-    </div>
-    </script>
 
-    <script type="text/template" id="legend-template-scale">
-        <div class="legend-inner">
-            <div class="legend-title"><strong><%= title %></strong></div>
 
-            <style type="text/css">
-                .legend-key { width: <% print(100/Object.keys(items).length) %>%; text-align: <%- align %> }
-            </style>
-
-            <% _.each(items, function(key, val) { %>
-                <div class="legend-key" style="border-top:10px solid <%- key %>;"><span> <%- val %></span></div>
-            <% }); %>
-        </div>
-    </script>
-
-    <script type="text/template" id="severity-toggle-template">
-    <div id="severity-switch" class="btn-group-vertical" role="group">
+<script type="text/template" id="severity-toggle-template">
+    <div class="btn-group-vertical overlay " role="group">
         <form class="form">
-            Midnight &nbsp; <input id="hour-input" type="text" value="" data-slider-min="0" data-slider-max="23" data-slider-step="1" data-slider-value="[0,23]"/> &nbsp; 11 p.m.
             <div class="checkbox">
                 <label>
                     <input class="target" type="checkbox" name="sex" value="V" checked> Violent
@@ -63,388 +85,416 @@
                     <input class="target" type="checkbox" name="sex" value="Q" checked> Quality of life
                 </label>
             </div>
-
         </form>
-        <select class="selectpicker" id="from-month" title="Month From" data-width="110px">
-            <option>Month From</option>
-            <option>January</option>
-            <option>February</option>
-            <option>March</option>
-            <option>April</option>
-            <option>May</option>
-            <option>June</option>
-            <option>July</option>
-            <option>August</option>
-            <option>September</option>
-            <option>October</option>
-            <option>November</option>
-            <option>December</option>
-        </select>
-        <select class="selectpicker" id="from-year" title="Year From" data-width="100px">
-            <option>Year From</option>
-            <option>2010</option>
-            <option>2011</option>
-            <option>2012</option>
-            <option>2013</option>
-            <option>2014</option>
-            <option>2015</option>
-        </select>
-        <select class="selectpicker" id="to-month" title="Month To" data-width="110px">
-            <option>Month To</option>
-            <option>January</option>
-            <option>February</option>
-            <option>March</option>
-            <option>April</option>
-            <option>May</option>
-            <option>June</option>
-            <option>July</option>
-            <option>August</option>
-            <option>September</option>
-            <option>October</option>
-            <option>November</option>
-            <option>December</option>
-        </select>
-        <select class="selectpicker" id="to-year" title="Year To" data-width="100px">
-            <option>Year From</option>
-            <option>2010</option>
-            <option>2011</option>
-            <option>2012</option>
-            <option>2013</option>
-            <option>2014</option>
-            <option>2015</option>
-        </select>
     </div>
-    </script>
+</script>
 
-    <script type="text/template" id="locator-popup">
-    <%- address %>
-    <a href="/bins/<%- bin %>">Bin <%- bin %>
-    </script>
+<script type="text/template" id="hour-template">
+    <form>
+        12 a.m. &nbsp;
+        <input id="hour-input" type="text" value="" data-slider-min="0" data-slider-max="23" data-slider-step="1" data-slider-value="[0,23]"/>
+        &nbsp; 11 p.m.
+    </form>
+</script>
 
-    <script type="text/javascript">
-    $(document).ready(function() {
-        // some globals
-        var bins;
-        var geocoderMarker;
-        var geocoded = false;
-        var format = d3.format("0,000");
+<script type="text/template" id="month-template">
+    <div style="text-align: right;">
+        <div style="float: right;">
+            <label>From
+            <select class="selectpicker" id="from-month" title="Month From" data-width="110px">
+                <option selected="selected">Jan</option>
+                <option>Feb</option>
+                <option>Mar</option>
+                <option>Apr</option>
+                <option>May</option>
+                <option>Jun</option>
+                <option>Jul</option>
+                <option>Aug</option>
+                <option>Sep</option>
+                <option>Oct</option>
+                <option>Nov</option>
+                <option>Dec</option>
+            </select>
+            </label>
+            <select class="selectpicker" id="from-year" title="Year From" data-width="100px">
+                    <option selected="selected">2010</option>
+                    <option>2011</option>
+                    <option>2012</option>
+                    <option>2013</option>
+                    <option>2014</option>
+                    <option>2015</option>
+            </select>
+        </div>
 
-        // create a map in the "map" div, set the view to a given place and zoom
-        var map = L.map('map', {
-            center: [37.8716844,-122.2576889],
-            zoom: 15,
-            minZoom: 14,
-            scrollWheelZoom: false,
-            maxBounds: [[37.833459, -122.325810],[37.929657, -122.211311]],
-            zoomControl: false,
-        });
+        <br />
 
-        // add an OpenStreetMap tile layer
-        var CartoDB_Positron = L.tileLayer('http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
-            attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="http://cartodb.com/attributions">CartoDB</a>',
-            subdomains: 'abcd',
-            maxZoom: 19,
-            detectRetina: true,
-            opacity: 1,
+        <div style="float: right;">
+            <label>To
+            <select class="selectpicker" id="to-month" title="Month To" data-width="110px">
+                <option>Jan</option>
+                <option>Feb</option>
+                <option>Mar</option>
+                <option>Apr</option>
+                <option>May</option>
+                <option>Jun</option>
+                <option>Jul</option>
+                <option>Aug</option>
+                <option>Sep</option>
+                <option>Oct</option>
+                <option>Nov</option>
+                <option selected="selected">Dec</option>
+            </select>
+            </label>
+            <select class="selectpicker" id="to-year" title="Year To" data-width="100px">
+                <option>2010</option>
+                <option>2011</option>
+                <option>2012</option>
+                <option>2013</option>
+                <option>2014</option>
+                <option selected="selected">2015</option>
+            </select>
+        </div>
+    </div>
+</script>
+
+<script type="text/template" id="locator-popup">
+<%- address %>
+<a href="/bins/<%- bin %>">Bin <%- bin %>
+</script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+    // some globals
+    var bins;
+    var geocoderMarker;
+    var geocoded = false;
+    var format = d3.format("0,000");
+
+    // create a map in the "map" div, set the view to a given place and zoom
+    var map = L.map('map', {
+        center: [37.8716844,-122.2576889],
+        zoom: 15,
+        minZoom: 15,
+        scrollWheelZoom: false,
+        maxBounds: [[37.833459, -122.325810],[37.929657, -122.211311]],
+        zoomControl: false,
+    });
+
+    // add an OpenStreetMap tile layer
+    var CartoDB_Positron = L.tileLayer('http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="http://cartodb.com/attributions">CartoDB</a>',
+        subdomains: 'abcd',
+        maxZoom: 19,
+        detectRetina: true,
+        opacity: 1,
+    }).addTo(map);
+
+    var CornerOverlay = L.Control.extend({
+        initialize: function(html, position, extra_class) {
+            html = typeof html !== 'undefined' ?  html : '';
+            position = typeof position !== 'undefined' ?  position : 'bottomright';
+            extra_class = typeof extra_class !== 'undefined' ?  extra_class : '';
+            this._html = html;
+            this._class = extra_class;
+            this.options.position = position;
+        },
+        onAdd: function(map) {
+            var container = L.DomUtil.create('div', this._class, L.DomUtil.get('map'));
+            container.innerHTML = this._html;
+            return container;
+        },
+        update: function(html) {
+            this._html = html;
+            this.getContainer().innerHTML = html;
+        },
+        hide: function() {
+            $( this.getContainer() ).css('display','none');
+        },
+        show: function() {
+            $( this.getContainer() ).css('display','block');
+        }
+    });
+
+    var legendTemplateScale = _.template($('#legend-template-scale').html());
+
+    var Legend = CornerOverlay.extend({
+        onAdd: function(map) {
+            var container = L.DomUtil.create('div', 'overlay legend', L.DomUtil.get('map'));
+            container.innerHTML = this._html;
+            return container;
+        },
+        addData: function(legendData) {
+            var defaults = {align: 'left', template: 'scale'};
+            var opts = _.extend(defaults, legendData)
+            if (opts.template == 'swatch') {
+                var html = legendTemplateSwatch(opts);
+            } else {
+                var html = legendTemplateScale(opts);
+            }
+            this.update(html);
+        },
+    });
+
+    var severitytoggle = new CornerOverlay($('#severity-toggle-template').html(),'topright');
+    map.addControl(severitytoggle);
+
+    var hourtoggle = new CornerOverlay($('#hour-template').html(),'topright');
+    map.addControl(hourtoggle);
+
+    var monthtoggle = new CornerOverlay($('#month-template').html(),'topright');
+    map.addControl(monthtoggle);
+
+    var total_label = new CornerOverlay('<p class="text-label">Showing <span class="lbl" id="total-count"></span> incidents.</p>','topleft','total-label')
+    map.addControl(total_label);
+
+    var zoom = new L.control.zoom({position: 'topleft'})
+    map.addControl(zoom);
+
+    var fullscreen = new L.Control.Fullscreen;
+    map.addControl(fullscreen);
+
+    var legend = new Legend('','bottomright');
+    map.addControl(legend);
+
+    $('#severity-switch .btn').on('click', function() {
+        $('#severity-switch .btn').removeClass('active');
+        $(this).addClass('active');
+    });
+
+    var binStyle = function(featureData) {
+        return base_style;
+    }
+
+    //var colors = ['rgb(255,255,212)','rgb(254,217,142)','rgb(254,153,41)','rgb(217,95,14)','rgb(153,52,4)'];
+    var colors = ['rgb(254,240,217)','rgb(253,212,158)','rgb(253,187,132)','rgb(252,141,89)','rgb(239,101,72)','rgb(215,48,31)','rgb(153,0,0)'];
+    var colorscale = d3.scale.quantile();
+    var maximums;
+    var base_style = {
+        fillColor: 'grey',
+        fillOpacity: 0,
+        stroke: true,
+        color: 'white',
+        weight: 1,
+    }
+
+    var color_bins = function(counts) {
+        var bin_layers = bins.getLayers();
+
+        counts_array = [];
+        for (var i=0; i<bin_layers.length; i++) {
+            var bin = bin_layers[i];
+            var id = bin.feature.properties.id;
+            bin.count = counts[id] || 0;
+            if (bin.count > 0) {
+                counts_array.push(bin.count);
+            }
+        }
+
+        colorscale = colorscale.domain(counts_array).range(colors);
+
+        var keys = colorscale.quantiles().slice();
+        //keys.unshift(1);
+        var _items = {}
+
+        for (var i=0; i<keys.length; i++) {
+            if (i == keys.length-1) {
+                _items[keys[i].toFixed(0) + '+'] = colors[i]
+            } else {
+                _items[keys[i].toFixed(0)] = colors[i];
+            }
+        }
+
+        var legend_title= 'Number of incidents'
+
+        var legendData  = {
+            'title': legend_title,
+            'items': _items,
+        }
+        legend.addData(legendData);
+
+        for (var i=0; i<bin_layers.length; i++) {
+            var _count = bin_layers[i].count;
+            if (_count < 1) {
+                var _color = 'grey';
+                var _opacity = 0;
+                map.removeLayer(bin_layers[i]);
+            } else {
+                bin_layers[i].addTo(map);
+                var _color = colorscale(_count);
+                var _opacity = 0.6;
+            }
+
+            var style = _.extend(
+                base_style,
+                {
+                    fillColor: _color,
+                    fillOpacity: _opacity
+                });
+            bin_layers[i].setStyle(style);
+        }
+    }
+
+    $.getJSON("{% url 'bins-json' %}", function(response) {
+        bins = L.geoJson(response, {
+            style: binStyle,
         }).addTo(map);
 
-        var CornerOverlay = L.Control.extend({
-            initialize: function(html, position, extra_class) {
-                html = typeof html !== 'undefined' ?  html : '';
-                position = typeof position !== 'undefined' ?  position : 'bottomright';
-                extra_class = typeof extra_class !== 'undefined' ?  extra_class : '';
-                this._html = html;
-                this._class = extra_class;
-                this.options.position = position;
-            },
-            onAdd: function(map) {
-                var container = L.DomUtil.create('div', 'overlay ' + this._class, L.DomUtil.get('map'));
-                container.innerHTML = this._html;
-                return container;
-            },
-            update: function(html) {
-                this._html = html;
-                this.getContainer().innerHTML = html;
-            },
-            hide: function() {
-                $( this.getContainer() ).css('display','none');
-            },
-            show: function() {
-                $( this.getContainer() ).css('display','block');
-            }
-        });
-
-        var legendTemplateScale = _.template($('#legend-template-scale').html());
-
-        var Legend = CornerOverlay.extend({
-                onAdd: function(map) {
-                    var container = L.DomUtil.create('div', 'overlay legend', L.DomUtil.get('map'));
-                    container.innerHTML = this._html;
-                    return container;
-                },
-                addData: function(legendData) {
-                    var defaults = {align: 'left', template: 'scale'};
-                    var opts = _.extend(defaults, legendData)
-                    if (opts.template == 'swatch') {
-                        var html = legendTemplateSwatch(opts);
-                    } else {
-                        var html = legendTemplateScale(opts);
-                    }
-                    this.update(html);
-                },
-            });
-
-
-        var severitytoggle = new CornerOverlay($('#severity-toggle-template').html(),'topright');
-        map.addControl(severitytoggle);
-
-        var total_label = new CornerOverlay('<p class="text-label">Showing <span class="lbl" id="total-count"></span> incidents.</p>','topleft','total-label')
-        map.addControl(total_label);
-
-        var zoom = new L.control.zoom({position: 'topleft'})
-        map.addControl(zoom);
-
-        var fullscreen = new L.Control.Fullscreen;
-        map.addControl(fullscreen);
-
-        var legend = new Legend('','bottomright');
-        map.addControl(legend);
-
-        $('#severity-switch .btn').on('click', function() {
-            $('#severity-switch .btn').removeClass('active');
-            $(this).addClass('active');
-        });
-
-        var binStyle = function(featureData) {
-            return base_style;
-        }
-
-        //var colors = ['rgb(255,255,212)','rgb(254,217,142)','rgb(254,153,41)','rgb(217,95,14)','rgb(153,52,4)'];
-        var colors = ['rgb(254,240,217)','rgb(253,212,158)','rgb(253,187,132)','rgb(252,141,89)','rgb(239,101,72)','rgb(215,48,31)','rgb(153,0,0)'];
-        var colorscale = d3.scale.quantile();
-        var maximums;
-        var base_style = {
-            fillColor: 'grey',
-            fillOpacity: 0,
-            stroke: true,
-            color: 'white',
-            weight: 1,
-        }
-
-        var color_bins = function(counts) {
-            var bin_layers = bins.getLayers();
-
-            counts_array = [];
-            for (var i=0; i<bin_layers.length; i++) {
-                var bin = bin_layers[i];
-                var id = bin.feature.properties.id;
-                bin.count = counts[id] || 0;
-                if (bin.count > 0) {
-                    counts_array.push(bin.count);
-                }
-            }
-
-            colorscale = colorscale.domain(counts_array).range(colors);
-
-            var keys = colorscale.quantiles().slice();
-            //keys.unshift(1);
-            var _items = {}
-
-            for (var i=0; i<keys.length; i++) {
-                if (i == keys.length-1) {
-                    _items[keys[i].toFixed(0) + '+'] = colors[i]
-                } else {
-                    _items[keys[i].toFixed(0)] = colors[i];
-                }
-            }
-
-            var legend_title= 'Number of incidents'
-
-            var legendData  = {
-                'title': legend_title,
-                'items': _items,
-            }
-            legend.addData(legendData);
-
-            for (var i=0; i<bin_layers.length; i++) {
-                var _count = bin_layers[i].count;
-                if (_count < 1) {
-                    var _color = 'grey';
-                    var _opacity = 0;
-                    map.removeLayer(bin_layers[i]);
-                } else {
-                    bin_layers[i].addTo(map);
-                    var _color = colorscale(_count);
-                    var _opacity = 0.6;
-                }
-
-                var style = _.extend(
-                    base_style,
-                    {
-                        fillColor: _color,
-                        fillOpacity: _opacity
-                    });
-                bin_layers[i].setStyle(style);
-            }
-        }
-
-        $.getJSON("{% url 'bins-json' %}", function(response) {
-            bins = L.geoJson(response, {
-                style: binStyle,
-            }).addTo(map);
-
-            view.render();
-        });
-
-        /* Takes array of incidents and returns number of incidents in each bin */
-        function get_bin_counts(data) {
-            return _.countBy(data, function(incident) {
-                return incident.bin;
-            });
-        }
-
-        $.ajax("{% static 'json/packed.json' %}", {
-               success: function(data) {
-                  data = Tamper.unpackData(data);
-                  console.log(data);
-                  collection = new PourOver.Collection(data);
-                  var category_filter = PourOver.makeInclusionFilter("category",["Q","V","P"]);
-                  var years = ["2010", "2011", "2012", "2013", "2014", "2015"];
-                  var year_filter = PourOver.makeDVrangeFilter("year", years);
-
-                  var hours = [];
-                  for (var i = 0; i < 24; i++) {
-                    hours.push(i.toString());
-                  }
-                  var hour_filter = PourOver.makeDVrangeFilter("hour", hours);
-
-                  var months = [];
-                  for (var i = 1; i <= 12; i++) {
-                    months.push(i.toString());
-                  }
-
-                  var month_years = [];
-                  years.forEach(function(year) {
-                    months.forEach(function(month) {
-                      month_years.push(month.toString() + " " + year.toString());
-                    });
-                  });
-
-                  var month_year_filter = PourOver.makeDVrangeFilter("month_year", month_years);
-                  collection.addFilters([category_filter, year_filter, hour_filter, month_year_filter]);
-
-                  BinCountView = PourOver.View.extend({
-                    render: function(){
-                        var items = this.getCurrentItems();
-                        bin_counts = get_bin_counts(items);
-                        color_bins(bin_counts);
-                        $('#total-count').html(format(items.length));
-                    }
-                  });
-
-                  view = new BinCountView("default_view", collection);
-
-        }});
-
-        $('.target').change(function() {
-            var checkedVals = $('.target:checkbox:checked').map(function() {
-                return this.value;
-            }).get();
-            if (checkedVals.length > 0) {
-                view.collection.filters.category.query(checkedVals);
-                view.render();
-            } else {
-                view.collection.filters.category.clearQuery();
-                view.render();
-            }
-        });
-
-        $("#hour-input").slider({});
-
-        $("#hour-input").on("slide", function(slideEvt) {
-            begin = slideEvt.value[0].toString();
-            end = slideEvt.value[1].toString();
-            hours = [begin,end];
-            view.collection.filters.hour.query(hours);
-            view.render();
-        });
-        // the month_filter uses numbers to rep months
-        const month_mapping = {
-          "January":   "1",
-          "February":  "2",
-          "March":     "3",
-          "April":     "4",
-          "May":       "5",
-          "June":      "6",
-          "July":      "7",
-          "August":    "8",
-          "September": "9",
-          "October":   "10",
-          "November":  "11",
-          "December":  "12",
-        };
-
-        function filterMonthYears(fromYear, toYear, fromMonth, toMonth) {
-            var from = month_mapping[fromMonth] + " " + fromYear;
-            var to = month_mapping[toMonth] + " " + toYear;
-            view.collection.filters.month_year.query([from, to]);
-            view.render();
-        }
-
-        $("#from-month").change(function() {
-          var fromMonth = this.value.toString(),
-              toMonth = $("#to-month").val().toString(),
-              toMonthComp = toMonth.localeCompare(""),
-              fromYear = $("#from-year").val().toString(),
-              fromYearComp = fromYear.localeCompare(""),
-              toYear = $("#to-year").val().toString(),
-              toYearComp = toYear.localeCompare("");
-
-          if (toMonthComp !== 0 && fromYearComp !== 0 && toYearComp !== 0) {
-            filterMonthYears(fromYear, toYear, fromMonth, toMonth);
-          }
-        });
-
-        $("#from-year").change(function() {
-          var fromYear = this.value.toString(),
-              toYear = $("#to-year").val().toString(),
-              toYearComp = toYear.localeCompare(""),
-              fromMonth = $("#from-month").val().toString(),
-              fromMonthComp = fromMonth.localeCompare(""),
-              toMonth = $("#to-month").val().toString(),
-              toMonthComp = toMonth.localeCompare("");
-
-          if (toYearComp !== 0 && fromMonthComp !== 0 && toMonthComp !== 0) {
-            filterMonthYears(fromYear, toYear, fromMonth, toMonth);
-          }
-        });
-
-        $("#to-month").change(function() {
-          var toMonth = this.value.toString(),
-              fromMonth = $("#from-month").val().toString(),
-              fromMonthComp = fromMonth.localeCompare(""),
-              fromYear = $("#from-year").val().toString(),
-              fromYearComp = fromYear.localeCompare(""),
-              toYear = $("#to-year").val().toString(),
-              toYearComp = toYear.localeCompare("");
-
-          if (fromMonthComp !== 0 && fromYearComp !== 0 && toYearComp !== 0) {
-            filterMonthYears(fromYear, toYear, fromMonth, toMonth);
-          };
-        });
-
-        $("#to-year").change(function() {
-          var toYear = this.value.toString(),
-              fromYear = $("#from-year").val().toString(),
-              fromYearComp = fromYear.localeCompare(""),
-              fromMonth = $("#from-month").val().toString(),
-              fromMonthComp = fromMonth.localeCompare(""),
-              toMonth = $("#to-month").val().toString(),
-              toMonthComp = toMonth.localeCompare("");
-
-          if (fromYearComp !== 0 && fromMonthComp !== 0 && toMonthComp !== 0) {
-            filterMonthYears(fromYear, toYear, fromMonth, toMonth);
-          }
-        });
+        view.render();
     });
-    </script>
+
+    /* Takes array of incidents and returns number of incidents in each bin */
+    function get_bin_counts(data) {
+        return _.countBy(data, function(incident) {
+            return incident.bin;
+        });
+    }
+
+    $.ajax("{% static 'json/packed.json' %}", {
+           success: function(data) {
+              data = Tamper.unpackData(data);
+              collection = new PourOver.Collection(data);
+              var category_filter = PourOver.makeInclusionFilter("category",["Q","V","P"]);
+              var years = ["2010", "2011", "2012", "2013", "2014", "2015"];
+              var year_filter = PourOver.makeDVrangeFilter("year", years);
+
+              var hours = [];
+              for (var i = 0; i < 24; i++) {
+                hours.push(i.toString());
+              }
+              var hour_filter = PourOver.makeDVrangeFilter("hour", hours);
+
+              var months = [];
+              for (var i = 1; i <= 12; i++) {
+                months.push(i.toString());
+              }
+
+              var month_years = [];
+              years.forEach(function(year) {
+                months.forEach(function(month) {
+                  month_years.push(month.toString() + " " + year.toString());
+                });
+              });
+
+              var month_year_filter = PourOver.makeDVrangeFilter("month_year", month_years);
+              collection.addFilters([category_filter, year_filter, hour_filter, month_year_filter]);
+
+              BinCountView = PourOver.View.extend({
+                render: function() {
+                    var items = this.getCurrentItems();
+                    bin_counts = get_bin_counts(items);
+                    color_bins(bin_counts);
+                    $('#total-count').html(format(items.length));
+                }
+              });
+
+              view = new BinCountView("default_view", collection);
+
+    }});
+
+    $('.target').change(function() {
+        var checkedVals = $('.target:checkbox:checked').map(function() {
+            return this.value;
+        }).get();
+        if (checkedVals.length > 0) {
+            view.collection.filters.category.query(checkedVals);
+            view.render();
+        } else {
+            view.collection.filters.category.clearQuery();
+            view.render();
+        }
+    });
+
+    $("#hour-input").slider({
+        id: 'hour-slider'
+    });
+
+    $("#hour-input").on("slide", function(slideEvt) {
+        begin = slideEvt.value[0].toString();
+        end = slideEvt.value[1].toString();
+        hours = [begin,end];
+        view.collection.filters.hour.query(hours);
+        view.render();
+    });
+
+    // the month_filter uses numbers to rep months
+    const month_mapping = {
+      "Jan": "1",
+      "Feb": "2",
+      "Mar": "3",
+      "Apr": "4",
+      "May": "5",
+      "Jun": "6",
+      "Jul": "7",
+      "Aug": "8",
+      "Sep": "9",
+      "Oct": "10",
+      "Nov": "11",
+      "Dec": "12",
+    };
+
+    function filterMonthYears(fromYear, toYear, fromMonth, toMonth) {
+        var from = month_mapping[fromMonth] + " " + fromYear;
+        var to = month_mapping[toMonth] + " " + toYear;
+        console.log(from);
+        console.log(to);
+        view.collection.filters.month_year.query([from, to]);
+        view.render();
+    }
+
+    $("#from-month").change(function() {
+      var fromMonth = this.value.toString(),
+          toMonth = $("#to-month").val().toString(),
+          toMonthComp = toMonth.localeCompare(""),
+          fromYear = $("#from-year").val().toString(),
+          fromYearComp = fromYear.localeCompare(""),
+          toYear = $("#to-year").val().toString(),
+          toYearComp = toYear.localeCompare("");
+
+      if (toMonthComp !== 0 && fromYearComp !== 0 && toYearComp !== 0) {
+        filterMonthYears(fromYear, toYear, fromMonth, toMonth);
+      }
+    });
+
+    $("#from-year").change(function() {
+      var fromYear = this.value.toString(),
+          toYear = $("#to-year").val().toString(),
+          toYearComp = toYear.localeCompare(""),
+          fromMonth = $("#from-month").val().toString(),
+          fromMonthComp = fromMonth.localeCompare(""),
+          toMonth = $("#to-month").val().toString(),
+          toMonthComp = toMonth.localeCompare("");
+
+      if (toYearComp !== 0 && fromMonthComp !== 0 && toMonthComp !== 0) {
+        filterMonthYears(fromYear, toYear, fromMonth, toMonth);
+      }
+    });
+
+    $("#to-month").change(function() {
+      var toMonth = this.value.toString(),
+          fromMonth = $("#from-month").val().toString(),
+          fromMonthComp = fromMonth.localeCompare(""),
+          fromYear = $("#from-year").val().toString(),
+          fromYearComp = fromYear.localeCompare(""),
+          toYear = $("#to-year").val().toString(),
+          toYearComp = toYear.localeCompare("");
+
+      if (fromMonthComp !== 0 && fromYearComp !== 0 && toYearComp !== 0) {
+        filterMonthYears(fromYear, toYear, fromMonth, toMonth);
+      };
+    });
+
+    $("#to-year").change(function() {
+      var toYear = this.value.toString(),
+          fromYear = $("#from-year").val().toString(),
+          fromYearComp = fromYear.localeCompare(""),
+          fromMonth = $("#from-month").val().toString(),
+          fromMonthComp = fromMonth.localeCompare(""),
+          toMonth = $("#to-month").val().toString(),
+          toMonthComp = toMonth.localeCompare("");
+
+      if (fromYearComp !== 0 && fromMonthComp !== 0 && toMonthComp !== 0) {
+        filterMonthYears(fromYear, toYear, fromMonth, toMonth);
+      }
+    });
+});
+</script>
