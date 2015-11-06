@@ -27,11 +27,113 @@
     border-bottom: none;
 }
 
+.modal-content p {
+    margin: 0 0 -10px 0;
+    font-family: Helvetica;
+}
+
 .big-number {
     font-family: Georgia;
-    font-weight: bold;
     font-size: 30px;
+    margin-right: 5px;
+}
+
+.big-number.total {
+    font-size: 40px;
+    color: rgb(153,0,0);
     margin-right: 10px;
+}
+
+.big-number.violent {
+    color: #fc8d62;
+}
+
+.big-number.property {
+    color: #66c2a5;
+}
+
+.big-number.QOL {
+    color: #8da0cb;
+}
+
+.progress {
+    margin-top: 10px;
+}
+
+.progress-bar {
+    background-color: rgb(153,0,0);
+}
+
+line,rect {
+    shape-rendering: crispEdges;
+}
+
+.axis {
+    font-size: 11px;
+    -webkit-font-smoothing: antialiased;
+    fill: #777;
+}
+
+.axis.y path {
+    display: none;
+}
+
+.axis.y .tick line {
+    display: none;
+}
+
+.axis path, .axis line {
+    fill: none;
+    stroke: #ccc;
+    shape-rendering: crispEdges;
+}
+
+.grid path {
+    display: none;
+}
+
+.grid .tick {
+    stroke: #eee;
+    stroke-width: 1px;
+    shape-rendering: crispEdges;
+}
+
+.grid.y {
+        g:first-child line { display: none; }
+    }
+
+.value text {
+    font-size: 10px;
+    -webkit-font-smoothing: antialiased;
+}
+
+.value text.in {
+    fill: #fff; 
+}
+
+.value text.out {
+    fill: #999; 
+}
+
+.value text.other {
+    display: none;
+}
+
+.lines {
+    fill: none;
+    stroke-width: 3px;
+    stroke: #ccc;
+}
+
+.value text {
+    font-size: 12px;
+    font-weight: bold;
+    fill: #999;
+}
+
+#graphic {
+    width: 100%;
+    margin: 0 auto;
 }
 
 </style>
@@ -48,17 +150,31 @@
       </div>
       <div class="modal-body">
 
-        <span class="big-number"><%= counts.total %></span> incidents from January 2010 to September 2015.
+        <span class="big-number total"><%= counts.total %></span> incidents from January 2010 to September 2015.
 
         <div class="progress">
-          <div class="progress-bar" role="progressbar" aria-valuenow="<% print(counts.total/counts.max) %>" aria-valuemin="0" aria-valuemax="100" style="width: <% print(counts.total/counts.max * 100) %>%;">
-            <% print(counts.total/counts.max * 100) %>%
+          <div class="progress-bar" role="progressbar" aria-valuenow="<% print(counts.total/counts.max.total) %>" aria-valuemin="0" aria-valuemax="100" style="width: <% print(counts.total/counts.max.total * 100) %>%;">
+            <% print((counts.total/counts.max.total * 100).toFixed(0)) %>%
           </div>
         </div>
-        Total: <%= counts.total %>
-        Violent: <%= counts.violent %>
-        Property: <%= counts.property %>
-        Quality-of-life: <%= counts.QOL %>
+
+        <table>
+            <tr>
+                <td><span class="big-number violent"><%= counts.violent %></span></td>
+                <td>violent crimes, <b><%= counts.comparison.violent %></b> the average of <% print(counts.mean.violent.toFixed('1')) %></td>
+            </tr>
+            <tr>
+                <td><span class="big-number property"><%= counts.property %></span></td>
+                <td>property crimes, <b><%= counts.comparison.violent %></b> the average of <% print(counts.mean.property.toFixed('1')) %></td>
+            </tr>
+            <tr>
+                <td><span class="big-number QOL"><%= counts.QOL %></span></td>
+                <td>quality-of-life crimes, <b><%= counts.comparison.QOL %></b> the average of <% print(counts.mean.property.toFixed('1')) %></td>
+            </tr>
+        </table>
+
+        </br>
+        <div id="graphic"></div>
 
       </div>
       <div class="modal-footer">
@@ -358,11 +474,18 @@
 
     function openModal(bin_id) {
         $.ajax("/api/bin/" + bin_id + ".json/", {
-            success: function(data) {
-                console.log(data);
+            success: function(data) {      
                 html = modalTemplate(data);
                 $('#binModal').html(html);
                 $('#binModal').modal('show');
+
+                var width = $(document).width();
+                if (width > 550) {
+                    width = 550;
+                } else {
+                    width = width * 0.7;
+                }
+                renderChart(data['time_series'], width);
             }
         })
     }

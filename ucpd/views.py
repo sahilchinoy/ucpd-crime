@@ -9,7 +9,7 @@ from django.contrib.gis.db import models
 from django.contrib.gis.geos import GEOSGeometry
 from django.http import Http404, HttpResponse
 from bakery.views import BuildableTemplateView, BuildableListView, BuildableDetailView
-from ucpd.models import Incident, Bin
+from ucpd.models import Incident, Bin, Statistics
 
 class Main(BuildableTemplateView):
     template_name="main.html"
@@ -69,18 +69,29 @@ class BinDetailJSON(DetailView):
         counts['property'] = incidents.filter(category='P').count()
         counts['QOL'] = incidents.filter(category='Q').count()
 
-        max_count = 0
-        for hbin in Bin.objects.all():
-            count = hbin.incidents.exclude(category='N').count()
-            if count > max_count:
-                max_count = count
-        counts['max'] = max_count
+        stats = Statistics.objects.first()
 
-        pct = 100 * counts['total']/counts['max']
+        counts['max'] = {
+            'total': stats.max_count,
+            'violent': stats.max_V,
+            'property': stats.max_P,
+            'QOL': stats.max_Q
+        }
 
-        print pct
+        counts['mean'] = {
+            'total': stats.mean_count,
+            'violent': stats.mean_V,
+            'property': stats.mean_P,
+            'QOL': stats.mean_Q
+        }
 
-        counts['pct'] = "{0:.2f}".format(counts['total']/counts['max'] * 100)
+        counts['comparison'] = {}
+        categories = ('total','violent','property','QOL')
+        for category in categories:
+            if counts[category] > counts['mean'][category]:
+                counts['comparison'][category] = 'above'
+            else:
+                counts['comparison'][category] = 'below'
 
         return counts
 
@@ -89,14 +100,26 @@ class BinDetailJSON(DetailView):
         Returns count of incidents in this bin (excluding category N),
         broken across violent, property, and quality-of-life categories.
         """
-        time_series = {}
-        for year in range(2010, 2016):
-            incidents = self.object.incidents.exclude(category='N')
-            incidents.filter(date__year=year)
-            for month in range(1,13):
-                count = incidents.filter(date__month=month).count()
-                time_series[str(month) + '/' + str(year)] = count
 
+        stats = Statistics.objects.first()
+
+        avg = {}
+        avg['2010'] = stats.mean_10
+        avg['2011'] = stats.mean_11
+        avg['2012'] = stats.mean_12
+        avg['2013'] = stats.mean_13
+        avg['2014'] = stats.mean_14
+
+        time_series = []
+        for year in range(2010, 2015):
+            incidents = self.object.incidents.exclude(category='N') \
+                            .filter(date__year=year) 
+            count = incidents.count()
+            time_series.append({
+                'date': str(year),
+                'bin': count,
+                'avg': avg[str(year)],
+            })
         return time_series
 
     def get_context_data(self, **kwargs):

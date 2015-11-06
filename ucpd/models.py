@@ -9,6 +9,7 @@ class Bin(models.Model):
 
     geom = models.PolygonField(srid=4326, null=True)
     population = models.FloatField(null=True)
+    rank = models.IntegerField(null=True)
 
     objects = models.GeoManager()
 
@@ -77,3 +78,30 @@ class Incident(models.Model):
             "category": self.category
         }
         return as_dict
+
+
+class Statistics(models.Model):
+    """
+    Store some global statistics for use in comparisons.
+    """
+
+    max_count = models.IntegerField(null=True)
+    max_V = models.IntegerField(null=True)
+    max_P = models.IntegerField(null=True)
+    max_Q = models.IntegerField(null=True)
+
+    min_count = models.IntegerField(null=True)
+    min_V = models.IntegerField(null=True)
+    min_P = models.IntegerField(null=True)
+    min_Q = models.IntegerField(null=True)
+
+    mean_count = models.FloatField(null=True)
+    mean_V = models.FloatField(null=True)
+    mean_P = models.FloatField(null=True)
+    mean_Q = models.FloatField(null=True)
+
+    mean_10 = models.FloatField(null=True)
+    mean_11 = models.FloatField(null=True)
+    mean_12 = models.FloatField(null=True)
+    mean_13 = models.FloatField(null=True)
+    mean_14 = models.FloatField(null=True)

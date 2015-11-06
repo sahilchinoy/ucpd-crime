@@ -15,4 +15,5 @@ class Command(BaseCommand):
         call_command('classify')
         call_command('locate')
         call_command('assign_bin')
+        call_command('compute_stats')
         call_command('pack')
