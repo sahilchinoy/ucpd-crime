@@ -23,31 +23,51 @@
     margin-top: 0;
 }
 
+.modal-header {
+    border-bottom: none;
+}
+
+.big-number {
+    font-family: Georgia;
+    font-weight: bold;
+    font-size: 30px;
+    margin-right: 10px;
+}
+
 </style>
+
+<div class="modal fade" id="binModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"></div>
 
 <div class="map" id="map" style="height:600px;"></div>
 
-<script type="text/template" id="bin-template">
-<div class="hidden-xs">
-<p class="infobox-lead">Click to view incidents in this bin.</p>
-<table class="table table-condensed infobox-table">
-    <tr><th>Count: </th> <td><%- count %> </td></tr>
-    <tr><th>Per 1000: </th> <td><%- (per_capita*1000).toFixed(1) %> </td></tr>
-    <tr><th>Percentile: </th> <td><%- percentile.toFixed(1) %>% </td></tr>
-</table>
-</div>
+<script type="text/template" id="modal-template">
+<div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+      </div>
+      <div class="modal-body">
+
+        <span class="big-number"><%= counts.total %></span> incidents from January 2010 to September 2015.
+
+        <div class="progress">
+          <div class="progress-bar" role="progressbar" aria-valuenow="<% print(counts.total/counts.max) %>" aria-valuemin="0" aria-valuemax="100" style="width: <% print(counts.total/counts.max * 100) %>%;">
+            <% print(counts.total/counts.max * 100) %>%
+          </div>
+        </div>
+        Total: <%= counts.total %>
+        Violent: <%= counts.violent %>
+        Property: <%= counts.property %>
+        Quality-of-life: <%= counts.QOL %>
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
 </script>
 
-<script type="text/template" id="bin-template-load">
-<p class="infobox-lead">Select a bin.</p>
-<div class="hidden-xs">
-<table class="table table-condensed infobox-table">
-    <tr><th>Count: </th> <td></td></tr>
-    <tr><th>Rank (of {{ num_bins }}): </th> <td></td></tr>
-    <tr><th>Per 1000: </th> <td></td></tr>
-</table>
-</div>
-</script>
 
 <script type="text/template" id="legend-template-scale">
     <div class="legend-inner">
@@ -70,19 +90,19 @@
         <form class="form">
             <div class="checkbox">
                 <label>
-                    <input class="target" type="checkbox" name="sex" value="V" checked> Violent
+                    <input class="target" type="checkbox" value="V" checked> Violent
                 </label>
             </div>
 
             <div class="checkbox">
                 <label>
-                    <input class="target" type="checkbox" name="sex" value="P" checked> Property
+                    <input class="target" type="checkbox" value="P" checked> Property
                 </label>
             </div>
 
             <div class="checkbox">
                 <label>
-                    <input class="target" type="checkbox" name="sex" value="Q" checked> Quality of life
+                    <input class="target" type="checkbox" value="Q" checked> Quality of life
                 </label>
             </div>
         </form>
@@ -163,7 +183,7 @@
 </script>
 
 <script type="text/javascript">
-$(document).ready(function() {
+//$(document).ready(function() {
     // some globals
     var bins;
     var geocoderMarker;
@@ -334,10 +354,34 @@ $(document).ready(function() {
         }
     }
 
+    var modalTemplate = _.template($('#modal-template').html());
+
+    function openModal(bin_id) {
+        $.ajax("/api/bin/" + bin_id + ".json/", {
+            success: function(data) {
+                console.log(data);
+                html = modalTemplate(data);
+                $('#binModal').html(html);
+                $('#binModal').modal('show');
+            }
+        })
+    }
+
     $.getJSON("{% url 'bins-json' %}", function(response) {
         bins = L.geoJson(response, {
             style: binStyle,
         }).addTo(map);
+
+        /* Set up the event listeners to open the modal */
+        _.each(bins.getLayers(), function(bin) {
+            bin.on('click', function(e) {
+                openModal(e.target.feature.properties.id);
+            })
+        });
+
+        $('#binModal').modal({
+            show: false
+        });
 
         view.render();
     });
@@ -388,7 +432,6 @@ $(document).ready(function() {
               });
 
               view = new BinCountView("default_view", collection);
-
     }});
 
     $('.target').change(function() {
@@ -496,5 +539,5 @@ $(document).ready(function() {
         filterMonthYears(fromYear, toYear, fromMonth, toMonth);
       }
     });
-});
+//});
 </script>

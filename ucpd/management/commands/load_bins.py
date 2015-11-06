@@ -12,7 +12,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
     	Bin.objects.all().delete()
         path = os.path.join(
-            settings.DATA_DIR, 'bins', 'bins_4.shp')
+            settings.DATA_DIR, 'bins', 'grid.shp')
         mapping = {"geom": "POLYGON"}
         lm = LayerMapping(
             Bin, path, mapping, source_srs=SpatialReference(3857))

@@ -1,6 +1,7 @@
 import csv
 import json
 from collections import OrderedDict
+from django.db.models import Count, Max
 from django.shortcuts import render
 from django.views.generic import ListView, DetailView, TemplateView
 from django.core.serializers import serialize
@@ -51,6 +52,88 @@ class BuildableJSONView(JSONResponseMixin, BuildableTemplateView):
         template by the JSONResponseMixin
         """
         return self.get(self.request).content
+
+class BinDetailJSON(DetailView):
+    model = Bin
+
+    def get_counts(self):
+        """
+        Returns count of incidents in this bin (excluding category N),
+        broken across violent, property, and quality-of-life categories.
+        Also returns maximum bin count.
+        """
+        counts = {}
+        incidents = self.object.incidents.exclude(category='N')
+        counts['total'] = incidents.count()
+        counts['violent'] = incidents.filter(category='V').count()
+        counts['property'] = incidents.filter(category='P').count()
+        counts['QOL'] = incidents.filter(category='Q').count()
+
+        max_count = 0
+        for hbin in Bin.objects.all():
+            count = hbin.incidents.exclude(category='N').count()
+            if count > max_count:
+                max_count = count
+        counts['max'] = max_count
+
+        pct = 100 * counts['total']/counts['max']
+
+        print pct
+
+        counts['pct'] = "{0:.2f}".format(counts['total']/counts['max'] * 100)
+
+        return counts
+
+    def get_time_series(self):
+        """
+        Returns count of incidents in this bin (excluding category N),
+        broken across violent, property, and quality-of-life categories.
+        """
+        time_series = {}
+        for year in range(2010, 2016):
+            incidents = self.object.incidents.exclude(category='N')
+            incidents.filter(date__year=year)
+            for month in range(1,13):
+                count = incidents.filter(date__month=month).count()
+                time_series[str(month) + '/' + str(year)] = count
+
+        return time_series
+
+    def get_context_data(self, **kwargs):
+        context = {}
+        context['counts'] = self.get_counts()
+        context['time_series'] = self.get_time_series()
+
+        return context
+
+    def render_to_response(self, context, **response_kwargs):
+        return self.render_to_json_response(context, **response_kwargs)
+
+    def get_content(self):
+        """
+        Overrides an internal trick of buildable views so that bakery
+        can render the HttpResponse substituted above for the typical Django
+        template by the JSONResponseMixin
+        """
+        return self.get(self.request).content
+
+    def render_to_json_response(self, context, **response_kwargs):
+        """
+        Returns a JSON response, transforming 'context' to make the payload.
+        """
+        return HttpResponse(
+            self.convert_context_to_json(context),
+            content_type='application/json',
+            **response_kwargs
+        )
+
+    def convert_context_to_json(self, context):
+        "Convert the context dictionary into a JSON object"
+        # Note: This is *EXTREMELY* naive; in reality, you'll need
+        # to do much more complex handling to ensure that arbitrary
+        # objects -- such as Django model instances or querysets
+        # -- can be serialized as JSON.
+        return json.dumps(context)
 
 class HoursJSON(BuildableJSONView):
     build_path = "api/hours.json/index.html"

@@ -10,7 +10,9 @@ urlpatterns = [
     url(r'^$', Main.as_view(), name='bins'),
 
     url(r'^api/bins.json/$', BinsJSON.as_view(), name='bins-json'),
+    url(r'^api/bin/(?P<pk>[-\w]+).json/$', BinDetailJSON.as_view(), name='bin-json'),
     url(r'^api/hours.json/$', HoursJSON.as_view(), name='hours-json'),
+
     url(r'^months.csv/$', months, name='months'),
     url(r'^hours.csv/$', hours, name='hours'),
 
