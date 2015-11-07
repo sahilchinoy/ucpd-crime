@@ -32,16 +32,28 @@
     font-family: Helvetica;
 }
 
+.modal-content table {
+    margin-top: 10px;
+    line-height: 1;
+}
+
 .big-number {
-    font-family: Georgia;
+    font-weight: bold;
     font-size: 30px;
     margin-right: 5px;
 }
 
 .big-number.total {
-    font-size: 40px;
+    font-size: 50px;
     color: rgb(153,0,0);
-    margin-right: 10px;
+    margin-right: 20px;
+    margin-top: -17px;
+    float: left;
+}
+
+td.big-number {
+    text-align: right;
+    padding-right: 20px;
 }
 
 .big-number.violent {
@@ -119,17 +131,14 @@ line,rect {
     display: none;
 }
 
-.lines {
-    fill: none;
-    stroke-width: 3px;
-    stroke: #ccc;
+.bars rect { fill: #17807E; }
+
+.zero-line  {
+    stroke: #666;
+    stroke-width: 1px;
+    shape-rendering: crispEdges;
 }
 
-.value text {
-    font-size: 12px;
-    font-weight: bold;
-    fill: #999;
-}
 
 #graphic {
     width: 100%;
@@ -150,30 +159,29 @@ line,rect {
       </div>
       <div class="modal-body">
 
-        <span class="big-number total"><%= counts.total %></span> incidents from January 2010 to September 2015.
+        <span class="big-number total"><%= counts.total %></span> incidents from Jan. 2010 to Sept. 2015, <b><%= counts.comparison.total %></b> the average of <% print(counts.mean.total.toFixed('1')) %>.
 
-        <div class="progress">
-          <div class="progress-bar" role="progressbar" aria-valuenow="<% print(counts.total/counts.max.total) %>" aria-valuemin="0" aria-valuemax="100" style="width: <% print(counts.total/counts.max.total * 100) %>%;">
-            <% print((counts.total/counts.max.total * 100).toFixed(0)) %>%
-          </div>
-        </div>
+        <p>This bin ranks <b><%= counts.rank %></b> out of <%= counts.bin_count %> bins for crime reports in this time period.</p>
+
+        <hr style="clear: both;">
 
         <table>
             <tr>
-                <td><span class="big-number violent"><%= counts.violent %></span></td>
+                <td class="big-number violent"><%= counts.violent %></td>
                 <td>violent crimes, <b><%= counts.comparison.violent %></b> the average of <% print(counts.mean.violent.toFixed('1')) %></td>
             </tr>
             <tr>
-                <td><span class="big-number property"><%= counts.property %></span></td>
+                <td class="big-number property"><%= counts.property %></td>
                 <td>property crimes, <b><%= counts.comparison.violent %></b> the average of <% print(counts.mean.property.toFixed('1')) %></td>
             </tr>
             <tr>
-                <td><span class="big-number QOL"><%= counts.QOL %></span></td>
-                <td>quality-of-life crimes, <b><%= counts.comparison.QOL %></b> the average of <% print(counts.mean.property.toFixed('1')) %></td>
+                <td class="big-number QOL"><%= counts.QOL %></td>
+                <td>quality-of-life crimes, <b><%= counts.comparison.QOL %></b> the average of <% print(counts.mean.QOL.toFixed('1')) %></td>
             </tr>
         </table>
 
-        </br>
+        <hr>
+
         <div id="graphic"></div>
 
       </div>
@@ -275,10 +283,10 @@ line,rect {
                 <option>Jun</option>
                 <option>Jul</option>
                 <option>Aug</option>
-                <option>Sep</option>
+                <option selected="selected">Sep</option>
                 <option>Oct</option>
                 <option>Nov</option>
-                <option selected="selected">Dec</option>
+                <option>Dec</option>
             </select>
             </label>
             <select class="selectpicker" id="to-year" title="Year To" data-width="100px">

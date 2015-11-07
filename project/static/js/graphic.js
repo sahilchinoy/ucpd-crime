@@ -70,27 +70,17 @@ var isMobile = false;
 var graphicData = null;
 
 // D3 formatters
-var fmtYearAbbrev = d3.time.format('%y');
-var fmtYearFull = d3.time.format('%Y');
+var fmtComma = d3.format(',');
 
 /*
  * Format graphic data for processing by D3.
  */
 var formatData = function() {
     graphicData.forEach(function(d) {
-        d['date'] = d3.time.format('%Y').parse(d['date']);
-
-        for (var key in d) {
-            if (key != 'date') {
-                d[key] = +d[key];
-            }
-        }
+        d['amt'] = +d['amt'];
     });
 }
 
-/*
- * Render the graphic(s). Called by pym with the container width.
- */
 var renderChart = function(data, width) {
 
     graphicData = data;
@@ -108,7 +98,7 @@ var renderChart = function(data, width) {
     }
 
     // Render the chart!
-    renderLineChart({
+    renderColumnChart({
         container: '#graphic',
         width: containerWidth,
         data: graphicData
@@ -116,35 +106,28 @@ var renderChart = function(data, width) {
 }
 
 /*
- * Render a line chart.
+ * Render a column chart.
  */
-var renderLineChart = function(config) {
+var renderColumnChart = function(config) {
     /*
-     * Setup
+     * Setup chart container.
      */
-    var dateColumn = 'date';
+    var labelColumn = 'label';
     var valueColumn = 'amt';
 
-    var aspectWidth = isMobile ? 4 : 20;
+    var aspectWidth = isMobile ? 4 : 16;
     var aspectHeight = isMobile ? 3 : 9;
+    var valueGap = 6;
 
     var margins = {
-        top: 15,
-        right: 15,
+        top: 5,
+        right: 5,
         bottom: 20,
         left: 30
     };
 
-    var ticksX = 5;
-    var ticksY = 10;
-    var roundTicksFactor = 5;
-
-    // Mobile
-    if (isMobile) {
-        ticksX = 5;
-        ticksY = 5;
-        margins['right'] = 25;
-    }
+    var ticksY = 4;
+    var roundTicksFactor = 20;
 
     // Calculate actual chart dimensions
     var chartWidth = config['width'] - margins['left'] - margins['right'];
@@ -153,53 +136,6 @@ var renderLineChart = function(config) {
     // Clear existing graphic (for redraw)
     var containerElement = d3.select(config['container']);
     containerElement.html('');
-
-    var formattedData = {};
-
-    /*
-     * Restructure tabular data for easier charting.
-     */
-    for (var column in graphicData[0]) {
-        if (column == dateColumn) {
-            continue;
-        }
-
-        formattedData[column] = graphicData.map(function(d) {
-            return {
-                'date': d[dateColumn],
-                'amt': d[column]
-            };
-// filter out empty data. uncomment this if you have inconsistent data.
-//        }).filter(function(d) {
-//            return d['amt'].length > 0;
-        });
-    }
-
-    /*
-     * Create D3 scale objects.
-     */
-    var xScale = d3.time.scale()
-        .domain(d3.extent(config['data'], function(d) {
-            return d[dateColumn];
-        }))
-        .range([ 0, chartWidth ])
-
-    var yScale = d3.scale.linear()
-        .domain([ 0, d3.max(d3.entries(formattedData), function(c) {
-                return d3.max(c['value'], function(v) {
-                    var n = v[valueColumn];
-                    return Math.ceil(n / roundTicksFactor) * roundTicksFactor;
-                });
-            })
-        ])
-        .range([ chartHeight, 0 ]);
-
-    var colorScale = d3.scale.ordinal()
-        .domain(d3.keys(config['data'][0]).filter(function(key) {
-            return key !== dateColumn;
-        }))
-        .range(['rgb(153,0,0)', '#D3D3D3']);
-
 
     /*
      * Create the root SVG element.
@@ -214,24 +150,48 @@ var renderLineChart = function(config) {
         .attr('transform', 'translate(' + margins['left'] + ',' + margins['top'] + ')');
 
     /*
+     * Create D3 scale objects.
+     */
+    var xScale = d3.scale.ordinal()
+        .rangeRoundBands([0, chartWidth], .1)
+        .domain(config['data'].map(function (d) {
+            return d[labelColumn];
+        }));
+
+    var min = d3.min(config['data'], function(d) {
+        return Math.floor(d[valueColumn] / roundTicksFactor) * roundTicksFactor;
+    });
+
+    if (min > 0) {
+        min = 0;
+    }
+
+    var yScale = d3.scale.linear()
+        .domain([
+            min,
+            d3.max(config['data'], function(d) {
+                return Math.ceil(d[valueColumn] / roundTicksFactor) * roundTicksFactor;
+            })
+        ])
+        .range([chartHeight, 0]);
+
+    /*
      * Create D3 axes.
      */
     var xAxis = d3.svg.axis()
         .scale(xScale)
         .orient('bottom')
-        .ticks(ticksX)
         .tickFormat(function(d, i) {
-            if (isMobile) {
-                return '\u2019' + fmtYearAbbrev(d);
-            } else {
-                return fmtYearFull(d);
-            }
+            return d;
         });
 
     var yAxis = d3.svg.axis()
         .scale(yScale)
         .orient('left')
-        .ticks(ticksY);
+        .ticks(ticksY)
+        .tickFormat(function(d) {
+            return fmtComma(d);
+        });
 
     /*
      * Render axes to chart.
@@ -243,60 +203,106 @@ var renderLineChart = function(config) {
 
     chartElement.append('g')
         .attr('class', 'y axis')
-        .call(yAxis);
+        .call(yAxis)
 
     /*
      * Render grid to chart.
      */
-    var xAxisGrid = function() {
-        return xAxis;
-    }
-
     var yAxisGrid = function() {
         return yAxis;
-    }
-
-    chartElement.append('g')
-        .attr('class', 'x grid')
-        .attr('transform', makeTranslate(0, chartHeight))
-        .call(xAxisGrid()
-            .tickSize(-chartHeight, 0, 0)
-            .tickFormat('')
-        );
+    };
 
     chartElement.append('g')
         .attr('class', 'y grid')
         .call(yAxisGrid()
-            .tickSize(-chartWidth, 0, 0)
+            .tickSize(-chartWidth, 0)
             .tickFormat('')
         );
 
     /*
-     * Render lines to chart.
+     * Render bars to chart.
      */
-    var line = d3.svg.line()
-        .interpolate('monotone')
-        .x(function(d) {
-            return xScale(d[dateColumn]);
-        })
-        .y(function(d) {
-            return yScale(d[valueColumn]);
-        });
-
     chartElement.append('g')
-        .attr('class', 'lines')
-        .selectAll('path')
-        .data(d3.entries(formattedData))
+        .attr('class', 'bars')
+        .selectAll('rect')
+        .data(config['data'])
         .enter()
-        .append('path')
-            .attr('class', function(d, i) {
-                return 'line line-' + i + ' ' + classify(d['key']);
+        .append('rect')
+            .attr('x', function(d) {
+                return xScale(d[labelColumn]);
             })
-            .attr('stroke', function(d) {
-                return colorScale(d['key']);
-            })
-            .attr('d', function(d) {
-                return line(d['value']);
-            });
-}
+            .attr('y', function(d) {
+                if (d[valueColumn] < 0) {
+                    return yScale(0);
+                }
 
+                return yScale(d[valueColumn]);
+            })
+            .attr('width', xScale.rangeBand())
+            .attr('height', function(d) {
+                if (d[valueColumn] < 0) {
+                    return yScale(d[valueColumn]) - yScale(0);
+                }
+
+                return yScale(0) - yScale(d[valueColumn]);
+            })
+            .attr('class', function(d) {
+                return 'bar bar-' + d[labelColumn];
+            });
+
+    /*
+     * Render 0 value line.
+     */
+    chartElement.append('line')
+        .attr('class', 'zero-line')
+        .attr('x1', 0)
+        .attr('x2', chartWidth)
+        .attr('y1', yScale(0))
+        .attr('y2', yScale(0));
+
+    /*
+     * Render bar values.
+     */
+    chartElement.append('g')
+        .attr('class', 'value')
+        .selectAll('text')
+        .data(config['data'])
+        .enter()
+        .append('text')
+            .text(function(d) {
+                return d[valueColumn].toFixed(0);
+            })
+            .attr('x', function(d, i) {
+                return xScale(d[labelColumn]) + (xScale.rangeBand() / 2);
+            })
+            .attr('y', function(d) {
+                return yScale(d[valueColumn]);
+            })
+            .attr('dy', function(d) {
+                var textHeight = d3.select(this).node().getBBox().height;
+                var barHeight = 0;
+
+                if (d[valueColumn] < 0) {
+                    barHeight = yScale(d[valueColumn]) - yScale(0);
+
+                    if (textHeight + valueGap * 2 < barHeight) {
+                        d3.select(this).classed('in', true);
+                        return -(textHeight - valueGap / 2);
+                    } else {
+                        d3.select(this).classed('out', true)
+                        return textHeight + valueGap;
+                    }
+                } else {
+                    barHeight = yScale(0) - yScale(d[valueColumn]);
+
+                    if (textHeight + valueGap * 2 < barHeight) {
+                        d3.select(this).classed('in', true)
+                        return textHeight + valueGap;
+                    } else {
+                        d3.select(this).classed('out', true)
+                        return -(textHeight - valueGap / 2);
+                    }
+                }
+            })
+            .attr('text-anchor', 'middle')
+}

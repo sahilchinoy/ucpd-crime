@@ -93,6 +93,9 @@ class BinDetailJSON(DetailView):
             else:
                 counts['comparison'][category] = 'below'
 
+        counts['rank'] = self.object.rank
+        counts['bin_count'] = stats.bin_count
+
         return counts
 
     def get_time_series(self):
@@ -116,8 +119,8 @@ class BinDetailJSON(DetailView):
                             .filter(date__year=year) 
             count = incidents.count()
             time_series.append({
-                'date': str(year),
-                'bin': count,
+                'label': str(year),
+                'amt': count,
                 'avg': avg[str(year)],
             })
         return time_series

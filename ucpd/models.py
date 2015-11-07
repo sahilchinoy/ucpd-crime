@@ -85,6 +85,8 @@ class Statistics(models.Model):
     Store some global statistics for use in comparisons.
     """
 
+    bin_count = models.IntegerField(null=True)
+
     max_count = models.IntegerField(null=True)
     max_V = models.IntegerField(null=True)
     max_P = models.IntegerField(null=True)

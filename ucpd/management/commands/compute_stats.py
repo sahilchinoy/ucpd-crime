@@ -21,6 +21,7 @@ class Command(BaseCommand):
         incidents only.
         """
 
+        ranks = []
         counts = []
         V_counts = []
         P_counts = []
@@ -33,6 +34,8 @@ class Command(BaseCommand):
 
         for hbin in Bin.objects.exclude(incidents=None):
             incidents = hbin.incidents.exclude(category='N')
+
+            ranks.append((hbin.id,incidents.count()))
             counts.append(incidents.count())
 
             V_incidents = incidents.filter(category='V')
@@ -59,8 +62,16 @@ class Command(BaseCommand):
             incidents_14 = incidents.filter(date__year=2014)
             counts_14.append(incidents_14.count())
 
+        ranks.sort(key=lambda item: item[1], reverse=True)
+        for rank, tup in enumerate(ranks):
+            hbin = Bin.objects.get(id=tup[0])
+            hbin.rank = rank
+            hbin.save()
+
         Statistics.objects.all().delete()
         Statistics(
+            bin_count = Bin.objects.exclude(incidents=None).count(),
+
             max_count = np.max(counts),
             max_V = np.max(V_counts),
             max_P = np.max(P_counts),
