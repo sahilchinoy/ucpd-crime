@@ -36,15 +36,15 @@ td.big-number {
 }
 
 .big-number.violent {
-    color: #fc8d62;
+    color: #7fcdbb;
 }
 
 .big-number.property {
-    color: #66c2a5;
+    color: #2c7fb8;
 }
 
 .big-number.QOL {
-    color: #8da0cb;
+    color: #edf8b1;
 }
 
 /* Map */
@@ -65,16 +65,19 @@ td.big-number {
 .legend-title {
     margin-bottom: 5px;
 }
+
 .legend-key {
     float:left;
     font:10px Arial,
     sans-serif;
     color:#333;
 }
+
 .legend-key span {
     margin-left:-3px;
     line-height:20px;
 }
+
 .legend-swatch {
     display:inline-block;
     height:14px;
@@ -87,6 +90,7 @@ td.big-number {
     -moz-border-radius:10px;
     -webkit-border-radius:10px;
 }
+
 .map .legend {
     width: 250px;
     margin:0;
@@ -95,17 +99,31 @@ td.big-number {
     background-color:rgba(255,255,255,0.9);
 }
 
+@media (max-width: 768px) {
+    .map-legend {
+        display: none;
+    }
+}
+
 /* Controls */
 
 #hour-slider {
     width: 100px;
 }
+
 #hour-slider .slider-handle {
     width: 12px;
     height: 12px;
     margin-left: -5px;
     margin-top: 0;
 }
+
+.total-label {
+    font-size: 14px;
+}
+
+/* Column chart */
+.chart { position: relative; }
 
 line, rect {
     shape-rendering: crispEdges;
@@ -115,14 +133,13 @@ line, rect {
     font-size: 11px;
     -webkit-font-smoothing: antialiased;
     fill: #777;
-}
 
-.axis.y path {
-    display: none;
-}
+    
 
-.axis.y .tick line {
-    display: none;
+    &.y {
+        path { display: none; }
+        .tick line { display: none; }
+    }
 }
 
 .axis path, .axis line {
@@ -142,69 +159,36 @@ line, rect {
 }
 
 .grid.y {
-        g:first-child line { display: none; }
-    }
+    g:first-child line { display: none; }
+}
 
-.value text {
+#column-chart .value text {
     font-size: 10px;
     -webkit-font-smoothing: antialiased;
 }
 
 .value text.in {
-    fill: #fff; 
+    fill: #fff;
+}
+
+.value text.in {
+    fill: #fff;
 }
 
 .value text.out {
-    fill: #999; 
+    fill: #999;
 }
 
 .value text.other {
     display: none;
 }
 
-.graphic-wrapper {
-    position: relative;
-}
+.bars rect { fill: rgb(153,0,0); }
 
-.bars rect { fill: #17807E; }
-
-.labels {
-    position: absolute;
-    margin: 0;
-    padding: 0;
-    list-style-type: none;
-    border: none;
-
-    
-}
-
-.labels li {
-    position: absolute;
-    text-align: right;
-    font-size: 12px;
-    line-height: 1.3;
-    color: #666;
-    display: table;
-    -webkit-font-smoothing: antialiased;
-}
-
-.labels span {
-    display: table-cell;
-    vertical-align: middle;
-}
-
-#graphic {
-    width: 100%;
-    margin: 0 auto;
-}
-
-.total-label {
-    font-size: 14px;
-}
-@media (max-width: 768px) {
-    .map-legend {
-        display: none;
-    }
+.zero-line  {
+    stroke: #666;
+    stroke-width: 1px;
+    shape-rendering: crispEdges;
 }
 
 </style>
@@ -248,7 +232,7 @@ line, rect {
 
         <br>
 
-        <div id="graphic"></div>
+        <div id="column-chart"></div>
 
       </div>
       <div class="modal-footer">
@@ -373,7 +357,8 @@ line, rect {
     var format = d3.format("0,000");
 
     // thanks colorbrewer
-    var colors = ['rgb(254,240,217)','rgb(253,212,158)','rgb(253,187,132)','rgb(252,141,89)','rgb(239,101,72)','rgb(215,48,31)','rgb(153,0,0)'];
+    /*var colors = ['rgb(254,240,217)','rgb(253,212,158)','rgb(253,187,132)','rgb(252,141,89)','rgb(239,101,72)','rgb(215,48,31)','rgb(153,0,0)'];*/
+    var colors = ['#ffffcc','#ffeda0','#fed976','#feb24c','#fd8d3c','#fc4e2a','#e31a1c'];
     var colorscale = d3.scale.quantile();
 
     var modalTemplate = _.template($('#modal-template').html());
@@ -393,12 +378,11 @@ line, rect {
     });
 
     // add an OpenStreetMap tile layer
-    var CartoDB_Positron = L.tileLayer('http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
-        attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="http://cartodb.com/attributions">CartoDB</a>',
-        subdomains: 'abcd',
-        maxZoom: 19,
-        detectRetina: true,
+    var OpenStreetMap_BlackAndWhite = L.tileLayer('http://{s}.tiles.wmflabs.org/bw-mapnik/{z}/{x}/{y}.png', {
+        maxZoom: 18,
+        attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
         opacity: 1,
+        detectRetina: true
     }).addTo(map);
 
     // base class for our corner overlays
@@ -467,7 +451,7 @@ line, rect {
     var base_style = {
         fillColor: 'grey',
         fillOpacity: 0,
-        stroke: true,
+        stroke: false,
         color: 'white',
         weight: 1,
     }
@@ -526,7 +510,7 @@ line, rect {
             } else {
                 bin_layers[i].addTo(map);
                 var _color = colorscale(_count);
-                var _opacity = 0.4;
+                var _opacity = 0.6;
             }
             var style = _.extend(
                 base_style,

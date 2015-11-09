@@ -6,7 +6,7 @@
 
 {% block extra-css %}
 <link href="//api.tiles.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v0.0.2/leaflet.fullscreen.css" rel="stylesheet" />
-<link href="https://cdn.rawgit.com/seiyria/bootstrap-slider/master/dist/css/bootstrap-slider.min.css" rel="stylesheet" />
+<link href="{% static 'css/bootstrap-slider.min.css' %}" rel="stylesheet" />
 <link href="{% static 'css/tipped.css' %}" rel="stylesheet" />
 
 <style type"text/css">
@@ -39,7 +39,7 @@
 <script src="{% static 'js/tipped.js' %}" type="text/javascript"></script>
 <script src="{% static 'js/pourover.js' %}" type="text/javascript"></script>
 <script src="{% static 'js/tamper.js' %}" type="text/javascript"></script>
-<script src="{% static 'js/graphic.js' %}" type="text/javascript"></script>
+<script src="{% static 'js/column_chart.js' %}" type="text/javascript"></script>
 
 {% endblock %}
 
@@ -50,7 +50,7 @@
         <div class="col-md-12">
     		<div class="center-block">
         		<h1 class="main-title text-center">Crime on Campus</h1>
-                <p class="byline">By <a href="">Sahil Chinoy</a> and <a>Thomas Kim</a> | Staff</p>
+                <p class="byline">By <a target="_blank" href="http://www.dailycal.org/author/schinoy/">Sahil Chinoy</a> and <a>Thomas Kim</a> | Staff</p>
                 <p class="date">November 13, 2015</p>
         		<p>The Daily Californian analyzed five years of UCPD crime logs. Explore an <a href="#spatial">interactive map</a> of crime around campus, <a href="#hours">view crime by time of day</a>, <a href="#months"> see historical trends</a> or read more about <a href="#about">how we analyzed the data</a>.</p>
     		</div>
@@ -60,7 +60,8 @@
 		<hr>
         <div class="center-block">
             <h3>By area</h3>
-            <p>Although crime reports tended to be more frequent on weekday afternoons, they were largely incidents of property crime &mdash; theft and burglary, as opposed to violent crime such as assault, which was more sporadic.</p>
+            <p>FILL IN INFO HERE</p>
+            <p><b>Click a bin</b> for detailed information.</p>
         </div>
 		{% include 'map.html' %}
 	</div>

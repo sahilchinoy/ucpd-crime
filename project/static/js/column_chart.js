@@ -77,26 +77,14 @@ var fmtComma = d3.format(',');
  */
 var formatData = function() {
     graphicData.forEach(function(d) {
-        d['key'] = d['Group'];
-        d['values'] = [];
-
-        _.each(d, function(v, k) {
-            if (_.contains(['Group', 'key', 'values'], k)) {
-                return;
-            }
-
-            d['values'].push({ 'label': k, 'amt': +v });
-            delete d[k];
-        });
-
-        delete d['Group'];
+        d['amt'] = +d['amt'];
     });
 }
 
 var renderChart = function(data, width) {
     graphicData = data;
     formatData();
-    console.log(graphicData);
+
     var containerWidth = width;
 
     if (!containerWidth) {
@@ -110,8 +98,8 @@ var renderChart = function(data, width) {
     }
 
     // Render the chart!
-    renderGroupedColumnChart({
-        container: '#graphic',
+    renderColumnChart({
+        container: '#column-chart',
         width: containerWidth,
         data: graphicData
     });
@@ -120,7 +108,7 @@ var renderChart = function(data, width) {
 /*
  * Render a column chart.
  */
-var renderGroupedColumnChart = function(config) {
+var renderColumnChart = function(config) {
     /*
      * Setup chart container.
      */
@@ -129,7 +117,7 @@ var renderGroupedColumnChart = function(config) {
 
     var aspectWidth = isMobile ? 4 : 16;
     var aspectHeight = isMobile ? 3 : 9;
-    var valueGap = 6;
+    var valueGap = 10;
 
     var margins = {
         top: 5,
@@ -282,7 +270,12 @@ var renderGroupedColumnChart = function(config) {
         .enter()
         .append('text')
             .text(function(d) {
-                return d[valueColumn].toFixed(0);
+                if (d[valueColumn] > 2) {
+                    return d[valueColumn].toFixed(0);
+                } else {
+                    return '';
+                }
+                
             })
             .attr('x', function(d, i) {
                 return xScale(d[labelColumn]) + (xScale.rangeBand() / 2);

@@ -152,29 +152,20 @@ class BinDetailJSON(BuildableDetailView):
 
         stats = Statistics.objects.first()
 
-        avg = {}
-        avg['2010'] = stats.mean_10
-        avg['2011'] = stats.mean_11
-        avg['2012'] = stats.mean_12
-        avg['2013'] = stats.mean_13
-        avg['2014'] = stats.mean_14
-
         time_series = []
-        time_comparison = {}
 
         for year in range(2010, 2015):
             incidents = self.object.incidents.exclude(category='N') \
                             .filter(date__year=year) 
             count = incidents.count()
             time_series.append({
-                'Group': str(year),
-                'count': count,
-                'avg': avg[str(year)],
+                'label': str(year),
+                'amt': count,
             })
 
-        if time_series[3]['count'] > 0:
-            diff = time_series[4]['count'] - time_series[3]['count']
-            time_comparison = 100 * diff / time_series[3]['count']
+        if time_series[3]['amt'] > 0:
+            diff = time_series[4]['amt'] - time_series[3]['amt']
+            time_comparison = 100 * diff / time_series[3]['amt']
         else:
             time_comparison = 100
 
