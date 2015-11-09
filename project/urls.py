@@ -10,6 +10,8 @@ urlpatterns = [
     url(r'^$', Main.as_view(), name='bins'),
     url(r'^api/bins.json/$', BinsJSON.as_view(), name='bins-json'),
     url(r'^api/bin/(?P<pk>[-\w]+).json/$', BinDetailJSON.as_view(), name='bin-json'),
+
+    # Generates CSVs to move into the static directory. Hacks!
     url(r'^months.csv/$', months, name='months'),
     url(r'^hours.csv/$', hours, name='hours'),
 

@@ -5,8 +5,6 @@
 {% block title %}Crime on Campus{% endblock %}
 
 {% block extra-css %}
-<link href="https://cdn.datatables.net/plug-ins/1.10.7/integration/bootstrap/3/dataTables.bootstrap.css" rel="stylesheet" />
-<link href="https://cdn.rawgit.com/datadesk/jquery-geocodify/master/jquery.geocodify.css" rel="stylesheet" />
 <link href="//api.tiles.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v0.0.2/leaflet.fullscreen.css" rel="stylesheet" />
 <link href="https://cdn.rawgit.com/seiyria/bootstrap-slider/master/dist/css/bootstrap-slider.min.css" rel="stylesheet" />
 <link href="{% static 'css/tipped.css' %}" rel="stylesheet" />
@@ -25,6 +23,10 @@
     }
     p.date {
         font-size: 11px;
+        margin-top: -6px;
+    }
+    a.anchor {
+        margin-top: -200px;
     }
 </style>
 
@@ -48,27 +50,42 @@
         <div class="col-md-12">
     		<div class="center-block">
         		<h1 class="main-title text-center">Crime on Campus</h1>
-                <p class="byline">By <a href="">Sahil Chinoy</a> and <a>Thomas Kim</a></p>
+                <p class="byline">By <a href="">Sahil Chinoy</a> and <a>Thomas Kim</a> | Staff</p>
                 <p class="date">November 13, 2015</p>
-        		<p>The Daily Californian analyzed five years of UCPD crime logs to produce an interactive map of crime around the UC Berkeley campus. Click on a bin for more information, <a href="#time">view crime by time of day</a> or read more about <a href="#about">how we analyzed the data</a>.</p>
+        		<p>The Daily Californian analyzed five years of UCPD crime logs. Explore an <a href="#spatial">interactive map</a> of crime around campus, <a href="#hours">view crime by time of day</a>, <a href="#months"> see historical trends</a> or read more about <a href="#about">how we analyzed the data</a>.</p>
     		</div>
         </div>
 
-	<div class="col-md-12">
+	<div id="spatial" class="col-md-12">
 		<hr>
+        <div class="center-block">
+            <h3>By area</h3>
+            <p>Although crime reports tended to be more frequent on weekday afternoons, they were largely incidents of property crime &mdash; theft and burglary, as opposed to violent crime such as assault, which was more sporadic.</p>
+        </div>
 		{% include 'map.html' %}
 	</div>
 
-	<div id="time" class="col-md-12">
+    
+	<div id="hours" class="col-md-12">
         <hr>
         <div class="center-block">
-            <h3>Time of day</h3>
+            <h3>By time of day</h3>
             <p>Although crime reports tended to be more frequent on weekday afternoons, they were largely incidents of property crime &mdash; theft and burglary, as opposed to violent crime such as assault, which was more sporadic.</p>
         </div>
 		{% include 'heatmap.html' %}
 	</div>
 
-    <div id="about" class="col-md-12">
+    <div id="months" class="col-md-12">
+        <hr>
+        <div class="center-block">
+            <h3>By month</h3>
+            <p>Crime reports have decreased since 2010, though they exhibit a strong seasonal variation. Property and quality-of-life crime tends to drop during the summer months, likely because there are fewer people on and around campus.</p>
+        </div>
+        {% include 'months.html' %}
+    </div>
+
+    <a class="anchor" id="about"></a>
+    <div class="col-md-12">
         <hr>
         <div class="center-block">
             <h3>About the data</h3>

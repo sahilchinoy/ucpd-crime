@@ -1,11 +1,9 @@
 import os
 import csv
 import json
-from collections import OrderedDict
 from django.conf import settings
 from django.db.models import Count, Max
 from django.shortcuts import render
-from django.test.client import RequestFactory
 from django.views.generic import ListView, DetailView, TemplateView
 from django.core.serializers import serialize
 from django.contrib.gis.db import models
@@ -247,14 +245,15 @@ def months(request):
     response['Content-Disposition'] = 'attachment; filename="months.csv"'
 
     writer = csv.writer(response)
-    writer.writerow(['date', 'total', 'violent', 'property'])
+    writer.writerow(['date', 'Total', 'Violent', 'Property', 'Quality-of-life'])
     for year in range(2010, 2016):
         qset = Incident.objects.exclude(category='N').filter(date__year=year)
         for month in range(1,13):
             count = qset.filter(date__month=month).count()
             v_count = qset.filter(date__month=month).filter(category='V').count()
             p_count = qset.filter(date__month=month).filter(category='P').count()
-            writer.writerow([str(month) + '/' + str(year), count, v_count, p_count])
+            q_count = qset.filter(date__month=month).filter(category='Q').count()
+            writer.writerow([str(month).zfill(2) + '/' + str(year), count, v_count, p_count, q_count])
 
     return response
 

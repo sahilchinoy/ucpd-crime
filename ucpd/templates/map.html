@@ -193,8 +193,6 @@ line, rect {
     vertical-align: middle;
 }
 
-
-
 #graphic {
     width: 100%;
     margin: 0 auto;
@@ -204,7 +202,7 @@ line, rect {
     font-size: 14px;
 }
 @media (max-width: 768px) {
-    .legend {
+    .map-legend {
         display: none;
     }
 }
@@ -434,7 +432,7 @@ line, rect {
     var legendTemplateScale = _.template($('#legend-template-scale').html());
     var Legend = CornerOverlay.extend({
         onAdd: function(map) {
-            var container = L.DomUtil.create('div', 'overlay legend', L.DomUtil.get('map'));
+            var container = L.DomUtil.create('div', 'overlay legend map-legend', L.DomUtil.get('map'));
             container.innerHTML = this._html;
             return container;
         },

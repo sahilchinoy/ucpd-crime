@@ -40,7 +40,7 @@ This means we can't send coordinates for each individual incident. Instead, we a
 
 # Building
 
-Running servers is for suckers. Build this site out as flat files (including the JSON data for each bin used by in modal) by running
+Running servers is for suckers. Build this site out as flat files (including the JSON data for each bin used in the modal) by running
 
 ```
 python manage.py build

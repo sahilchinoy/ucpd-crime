@@ -12,8 +12,8 @@ rect.bordered {
 }
 h4 {
     font-size: 14px;
-    text-transform: uppercase;
     margin-left: 30px;
+    color: gray;
 }
 </style>
 
@@ -54,16 +54,6 @@ $(document).ready(function() {
     var onWindowLoaded = function() {
     	loadCSV("{% static 'csv/hours.csv' %}");
     	window.onresize = render;
-    }
-
-    /*
-     * Load graphic data from a JSON.
-     */
-    var loadJSON = function(url) {
-      d3.json(url, function(error, data) {
-        graphicData = data['days'];
-        render();
-      });
     }
 
     /*
@@ -126,13 +116,18 @@ $(document).ready(function() {
         var margins = {
             top: 20,
             right: 0,
-            bottom: 10,
+            bottom: 0,
             left: 30
         }
 
         // Calculate actual chart dimensions
         var chartWidth = config['width'] - margins['left'] - margins['right'];
-        var chartHeight = Math.ceil((config['width'] * aspectHeight) / aspectWidth) - margins['top'] - margins['bottom'];
+        /*if (isMobile) {
+            var chartHeight = 0;
+        } else {
+            var chartHeight = 24*
+        }*/
+        
         
         var buckets = 7;
         var colors = ['rgb(254,240,217)','rgb(253,212,158)','rgb(253,187,132)','rgb(252,141,89)','rgb(239,101,72)','rgb(215,48,31)','rgb(153,0,0)'];
@@ -163,16 +158,20 @@ $(document).ready(function() {
         var chartWrapper = containerElement.append('div')
             .attr('class', 'graphic-wrapper');
 
-        var chartElement = chartWrapper.append('svg')
-            .attr('width', chartWidth + margins['left'] + margins['right'])
-            .attr('height', chartHeight + margins['top'] + margins['bottom'])
-            .append('g')
-            .attr('transform', 'translate(' + margins['left'] + ',' + margins['top'] + ')');
+        
 
         if (isMobile) {
             var gridSize = Math.floor(chartWidth / 7);
             var yScaleFactor = 2;
             var legendElementWidth = (gridSize * 7) / buckets;
+
+            var chartHeight = gridSize / yScaleFactor * 28 - margins['top'] - margins['bottom']; 
+
+            var chartElement = chartWrapper.append('svg')
+                .attr('width', chartWidth + margins['left'] + margins['right'])
+                .attr('height', chartHeight + margins['top'] + margins['bottom'])
+                .append('g')
+                .attr('transform', 'translate(' + margins['left'] + ',' + margins['top'] + ')');
 
             /*
              * Render day labels to chart.
@@ -242,6 +241,14 @@ $(document).ready(function() {
         } else {
             var gridSize = Math.floor(chartWidth / 24);
             var legendElementWidth = (gridSize * 24) / buckets;
+
+            var chartHeight = gridSize * 10 - margins['top'] - margins['bottom']; 
+
+            var chartElement = chartWrapper.append('svg')
+            .attr('width', chartWidth + margins['left'] + margins['right'])
+            .attr('height', chartHeight + margins['top'] + margins['bottom'])
+            .append('g')
+            .attr('transform', 'translate(' + margins['left'] + ',' + margins['top'] + ')');
 
             /*
              * Render day labels to chart.
@@ -313,8 +320,14 @@ $(document).ready(function() {
 
     /*
      * Initially load the graphic
-     * (NB: Use window.load to ensure all images have loaded)
      */
-    window.onload = onWindowLoaded;
+    loadCSV("{% static 'csv/hours.csv' %}");
+
+    /*
+    * Set up resize event listener
+    */
+    $( window ).resize(function() {
+      render();
+    });
 });
 </script>
