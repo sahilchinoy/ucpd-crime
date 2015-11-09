@@ -1,9 +1,8 @@
 {% extends "base.html" %}
 
 {% load static from staticfiles %}
-{% load humanize %}
 
-{% block title %}Crime in Berkeley{% endblock %}
+{% block title %}Crime on Campus{% endblock %}
 
 {% block extra-css %}
 <link href="https://cdn.datatables.net/plug-ins/1.10.7/integration/bootstrap/3/dataTables.bootstrap.css" rel="stylesheet" />
@@ -13,116 +12,19 @@
 <link href="{% static 'css/tipped.css' %}" rel="stylesheet" />
 
 <style type"text/css">
-	.infobox {
-	    padding: 1px 6px;
-	    background: white;
-	    background: rgba(255,255,255,0.9);
-	    border: none;
-	}
-	.infobox table {
-		text-align: right;
-	}
-	.infobox-lead {
-		text-align: center;
-	}
-	.infobox-table {
-		margin-bottom: 2px;
-	}
-	.btn {
-		font-weight: bold;
-		font-size: 12px;
-	}
-	.lbl {
-		font-weight: bold;
-	}
-    /* For legend generation */
-    .legend-title {
-        margin-bottom: 5px;
-    }
-    .legend-key {
-        float:left;
-        font:10px Arial,
-        sans-serif;
-        color:#333;
-    }
-    .legend-key span {
-    	margin-left:-3px;
-        line-height:20px;
-    }
-    .legend-swatch {
-        display:inline-block;
-        height:14px;
-        width:14px;
-        margin:0 10px 0 0;
-        position:relative;
-        bottom:-2px;
-        background-color:#ccc;
-        border-radius:10px;
-        -moz-border-radius:10px;
-        -webkit-border-radius:10px;
-    }
-    .map .legend {
-    	width: 250px;
-    	margin:0;
-        padding:6px 8px;
-        background-color:#fff;
-        background-color:rgba(255,255,255,0.9);
-    }
-    input.geocodify {
-    	font-size: 14px;
-    }
-    .geocodify-dropdown ul li {
-    	font-size: 14px;
-    }
-    .leaflet-bar {
-    	box-shadow: none;
-    }
-    .leaflet-popup-content-wrapper, .leaflet-popup-tip {
-    	box-shadow: none;
-    	color: white;
-    	background-color: rgba(0,0,0,0.9);
-    	border-radius: 0;
-    	line-height: 1;
-    }
-    .leaflet-popup-content h4 {
-    	margin-bottom: 0px;
-    }
-    .leaflet-popup-content h4 a {
-    	font-family: Georgia;
-    	text-transform: uppercase;
-    	color: white;
-    	text-decoration: underline;
-    }
-    .table tbody tr td.no-border {
-    	border-top: none;
-    }
-    table.offense-table tr td {
-    	padding: 4px;
-    }
-
-    .updated {
-    	color: red;
-    	text-transform: uppercase;
-    	font-size: 11px;
-    	font-weight: bold;
+    .center-block {
+        max-width: 600px;
     }
     h1.main-title {
     	margin-top: 0;
     }
-
-    p.byline {
+    p.byline, p.date {
         text-transform: uppercase;
         text-align: center;
         font-family: Helvetica;
     }
-
-    .total-label {
-    	font-size: 14px;
-    }
-    @media (max-width: 768px) {
-    	.legend {
-    		display: none;
-    	}
+    p.date {
+        font-size: 11px;
     }
 </style>
 
@@ -130,18 +32,12 @@
 
 {% block extra-js %}
 
-<script src="https://cdn.datatables.net/1.10.7/js/jquery.dataTables.min.js" type="text/javascript"></script>
-<script src="https://cdn.datatables.net/plug-ins/1.10.7/integration/bootstrap/3/dataTables.bootstrap.js" type="text/javascript"></script>
-<script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?sensor=false"></script>
-<script src="https://cdn.rawgit.com/datadesk/jquery-geocodify/master/jquery.geocodify.js" type="text/javascript"></script>
-<script src="http://api.tiles.mapbox.com/mapbox.js/plugins/turf/v2.0.0/turf.min.js" type="text/javascript"></script>
-<script src="https://cdn.rawgit.com/Leaflet/Leaflet.label/master/dist/leaflet.label-src.js" type="text/javascript"></script>
-<script src="https://cdn.rawgit.com/Leaflet/Leaflet.fullscreen/gh-pages/dist/Leaflet.fullscreen.min.js" type="text/javascript"></script>
-<script src="https://cdn.rawgit.com/seiyria/bootstrap-slider/master/dist/bootstrap-slider.min.js"></script>
+<script src="{% static 'js/leaflet.fullscreen.min.js' %}" type="text/javascript"></script>
+<script src="{% static 'js/bootstrap-slider.min.js' %}" type="text/javascript"></script>
 <script src="{% static 'js/tipped.js' %}" type="text/javascript"></script>
 <script src="{% static 'js/pourover.js' %}" type="text/javascript"></script>
 <script src="{% static 'js/tamper.js' %}" type="text/javascript"></script>
-
+<script src="{% static 'js/graphic.js' %}" type="text/javascript"></script>
 
 {% endblock %}
 
@@ -149,31 +45,38 @@
 
 	<div class="container">
 
-	<div class="row">
-		<div class="center-block" style="max-width: 600px">
-		<h1 class="main-title text-center">Crime in Berkeley</h1>
-        <p class="byline">By <a href="">Sahil Chinoy</a> and <a>Thomas Kim</a></p>
-
-		<p>The Daily Californian analyzed five years of UCPD crime logs to produce this interactive map of crime in Berkeley. Click on a bin for more information, or read more about how we analyzed the data.</p>
-		</div>
-
-	</div>
+        <div class="col-md-12">
+    		<div class="center-block">
+        		<h1 class="main-title text-center">Crime on Campus</h1>
+                <p class="byline">By <a href="">Sahil Chinoy</a> and <a>Thomas Kim</a></p>
+                <p class="date">November 13, 2015</p>
+        		<p>The Daily Californian analyzed five years of UCPD crime logs to produce an interactive map of crime around the UC Berkeley campus. Click on a bin for more information, <a href="#time">view crime by time of day</a> or read more about <a href="#about">how we analyzed the data</a>.</p>
+    		</div>
+        </div>
 
 	<div class="col-md-12">
 		<hr>
 		{% include 'map.html' %}
 	</div>
 
-	<div class="col-md-12">
-		<hr>
+	<div id="time" class="col-md-12">
+        <hr>
+        <div class="center-block">
+            <h3>Time of day</h3>
+            <p>Although crime reports tended to be more frequent on weekday afternoons, they were largely incidents of property crime &mdash; theft and burglary, as opposed to violent crime such as assault, which was more sporadic.</p>
+        </div>
 		{% include 'heatmap.html' %}
 	</div>
+
+    <div id="about" class="col-md-12">
+        <hr>
+        <div class="center-block">
+            <h3>About the data</h3>
+            {% include 'about.html' %}
+        </div>
+    </div>
 
 	<hr>
 
 	</div>
-
-	
-
-
 {% endblock %}

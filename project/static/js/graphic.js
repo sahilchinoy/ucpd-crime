@@ -77,14 +77,26 @@ var fmtComma = d3.format(',');
  */
 var formatData = function() {
     graphicData.forEach(function(d) {
-        d['amt'] = +d['amt'];
+        d['key'] = d['Group'];
+        d['values'] = [];
+
+        _.each(d, function(v, k) {
+            if (_.contains(['Group', 'key', 'values'], k)) {
+                return;
+            }
+
+            d['values'].push({ 'label': k, 'amt': +v });
+            delete d[k];
+        });
+
+        delete d['Group'];
     });
 }
 
 var renderChart = function(data, width) {
-
     graphicData = data;
     formatData();
+    console.log(graphicData);
     var containerWidth = width;
 
     if (!containerWidth) {
@@ -98,7 +110,7 @@ var renderChart = function(data, width) {
     }
 
     // Render the chart!
-    renderColumnChart({
+    renderGroupedColumnChart({
         container: '#graphic',
         width: containerWidth,
         data: graphicData
@@ -108,7 +120,7 @@ var renderChart = function(data, width) {
 /*
  * Render a column chart.
  */
-var renderColumnChart = function(config) {
+var renderGroupedColumnChart = function(config) {
     /*
      * Setup chart container.
      */
@@ -127,7 +139,7 @@ var renderColumnChart = function(config) {
     };
 
     var ticksY = 4;
-    var roundTicksFactor = 20;
+    var roundTicksFactor = 50;
 
     // Calculate actual chart dimensions
     var chartWidth = config['width'] - margins['left'] - margins['right'];

@@ -1,28 +1,7 @@
 {% load static from staticfiles %}
 
 <style type="text/css">
-#map {
-    height: 600px;
-    margin: 20px 0;
-}
-
-.overlay {
-    padding: 0 8px;
-    background-color: #fff;
-    background-color: rgba(255,255,255,0.9);
-}
-
-#hour-slider {
-    width: 100px;
-}
-
-#hour-slider .slider-handle {
-    width: 12px;
-    height: 12px;
-    margin-left: -5px;
-    margin-top: 0;
-}
-
+/* Modal */
 .modal-header {
     border-bottom: none;
 }
@@ -68,15 +47,67 @@ td.big-number {
     color: #8da0cb;
 }
 
-.progress {
-    margin-top: 10px;
+/* Map */
+
+#map {
+    height: 600px;
+    margin: 20px 0;
 }
 
-.progress-bar {
-    background-color: rgb(153,0,0);
+.overlay {
+    padding: 0 8px;
+    background-color: #fff;
+    background-color: rgba(255,255,255,0.9);
 }
 
-line,rect {
+/* For legend generation */
+
+.legend-title {
+    margin-bottom: 5px;
+}
+.legend-key {
+    float:left;
+    font:10px Arial,
+    sans-serif;
+    color:#333;
+}
+.legend-key span {
+    margin-left:-3px;
+    line-height:20px;
+}
+.legend-swatch {
+    display:inline-block;
+    height:14px;
+    width:14px;
+    margin:0 10px 0 0;
+    position:relative;
+    bottom:-2px;
+    background-color:#ccc;
+    border-radius:10px;
+    -moz-border-radius:10px;
+    -webkit-border-radius:10px;
+}
+.map .legend {
+    width: 250px;
+    margin:0;
+    padding:6px 8px;
+    background-color:#fff;
+    background-color:rgba(255,255,255,0.9);
+}
+
+/* Controls */
+
+#hour-slider {
+    width: 100px;
+}
+#hour-slider .slider-handle {
+    width: 12px;
+    height: 12px;
+    margin-left: -5px;
+    margin-top: 0;
+}
+
+line, rect {
     shape-rendering: crispEdges;
 }
 
@@ -131,18 +162,51 @@ line,rect {
     display: none;
 }
 
+.graphic-wrapper {
+    position: relative;
+}
+
 .bars rect { fill: #17807E; }
 
-.zero-line  {
-    stroke: #666;
-    stroke-width: 1px;
-    shape-rendering: crispEdges;
+.labels {
+    position: absolute;
+    margin: 0;
+    padding: 0;
+    list-style-type: none;
+    border: none;
+
+    
 }
+
+.labels li {
+    position: absolute;
+    text-align: right;
+    font-size: 12px;
+    line-height: 1.3;
+    color: #666;
+    display: table;
+    -webkit-font-smoothing: antialiased;
+}
+
+.labels span {
+    display: table-cell;
+    vertical-align: middle;
+}
+
 
 
 #graphic {
     width: 100%;
     margin: 0 auto;
+}
+
+.total-label {
+    font-size: 14px;
+}
+@media (max-width: 768px) {
+    .legend {
+        display: none;
+    }
 }
 
 </style>
@@ -182,6 +246,10 @@ line,rect {
 
         <hr>
 
+        <p>Crime in this bin <b><% if (time_comparison > 0) { print('increased') } else { print('decreased') }%></b> by <% print(Math.abs(time_comparison).toFixed('0')) %> percent from 2013 to 2014.</p>
+
+        <br>
+
         <div id="graphic"></div>
 
       </div>
@@ -191,7 +259,6 @@ line,rect {
     </div>
   </div>
 </script>
-
 
 <script type="text/template" id="legend-template-scale">
     <div class="legend-inner">
@@ -206,8 +273,6 @@ line,rect {
         <% }); %>
     </div>
 </script>
-
-
 
 <script type="text/template" id="severity-toggle-template">
     <div class="btn-group-vertical overlay " role="group">
@@ -301,11 +366,6 @@ line,rect {
     </div>
 </script>
 
-<script type="text/template" id="locator-popup">
-<%- address %>
-<a href="/bins/<%- bin %>">Bin <%- bin %>
-</script>
-
 <script type="text/javascript">
 //$(document).ready(function() {
     // some globals
@@ -313,6 +373,16 @@ line,rect {
     var geocoderMarker;
     var geocoded = false;
     var format = d3.format("0,000");
+
+    // thanks colorbrewer
+    var colors = ['rgb(254,240,217)','rgb(253,212,158)','rgb(253,187,132)','rgb(252,141,89)','rgb(239,101,72)','rgb(215,48,31)','rgb(153,0,0)'];
+    var colorscale = d3.scale.quantile();
+
+    var modalTemplate = _.template($('#modal-template').html());
+
+    /*
+    * Set up the basic map
+    */
 
     // create a map in the "map" div, set the view to a given place and zoom
     var map = L.map('map', {
@@ -333,6 +403,7 @@ line,rect {
         opacity: 1,
     }).addTo(map);
 
+    // base class for our corner overlays
     var CornerOverlay = L.Control.extend({
         initialize: function(html, position, extra_class) {
             html = typeof html !== 'undefined' ?  html : '';
@@ -359,8 +430,8 @@ line,rect {
         }
     });
 
+    // HTML legend
     var legendTemplateScale = _.template($('#legend-template-scale').html());
-
     var Legend = CornerOverlay.extend({
         onAdd: function(map) {
             var container = L.DomUtil.create('div', 'overlay legend', L.DomUtil.get('map'));
@@ -379,40 +450,22 @@ line,rect {
         },
     });
 
+    // all the controls
     var severitytoggle = new CornerOverlay($('#severity-toggle-template').html(),'topright');
     map.addControl(severitytoggle);
-
     var hourtoggle = new CornerOverlay($('#hour-template').html(),'topright');
     map.addControl(hourtoggle);
-
     var monthtoggle = new CornerOverlay($('#month-template').html(),'topright');
     map.addControl(monthtoggle);
-
     var total_label = new CornerOverlay('<p class="text-label">Showing <span class="lbl" id="total-count"></span> incidents.</p>','topleft','total-label')
     map.addControl(total_label);
-
     var zoom = new L.control.zoom({position: 'topleft'})
     map.addControl(zoom);
-
     var fullscreen = new L.Control.Fullscreen;
     map.addControl(fullscreen);
-
     var legend = new Legend('','bottomright');
     map.addControl(legend);
 
-    $('#severity-switch .btn').on('click', function() {
-        $('#severity-switch .btn').removeClass('active');
-        $(this).addClass('active');
-    });
-
-    var binStyle = function(featureData) {
-        return base_style;
-    }
-
-    //var colors = ['rgb(255,255,212)','rgb(254,217,142)','rgb(254,153,41)','rgb(217,95,14)','rgb(153,52,4)'];
-    var colors = ['rgb(254,240,217)','rgb(253,212,158)','rgb(253,187,132)','rgb(252,141,89)','rgb(239,101,72)','rgb(215,48,31)','rgb(153,0,0)'];
-    var colorscale = d3.scale.quantile();
-    var maximums;
     var base_style = {
         fillColor: 'grey',
         fillOpacity: 0,
@@ -420,24 +473,12 @@ line,rect {
         color: 'white',
         weight: 1,
     }
+    var binStyle = function(featureData) {
+        return base_style;
+    }
 
-    var color_bins = function(counts) {
-        var bin_layers = bins.getLayers();
-
-        counts_array = [];
-        for (var i=0; i<bin_layers.length; i++) {
-            var bin = bin_layers[i];
-            var id = bin.feature.properties.id;
-            bin.count = counts[id] || 0;
-            if (bin.count > 0) {
-                counts_array.push(bin.count);
-            }
-        }
-
-        colorscale = colorscale.domain(counts_array).range(colors);
-
+    var renderLegend = function() {
         var keys = colorscale.quantiles().slice();
-        //keys.unshift(1);
         var _items = {}
 
         for (var i=0; i<keys.length; i++) {
@@ -455,9 +496,31 @@ line,rect {
             'items': _items,
         }
         legend.addData(legendData);
+    }
 
+    // Use counts dictionary to color bins
+    var color_bins = function(counts) {
+        var bin_layers = bins.getLayers();
+
+        // First, we need to establish the color scale
+        counts_array = [];
+        for (var i=0; i<bin_layers.length; i++) {
+            var bin = bin_layers[i];
+            var id = bin.feature.properties.id;
+            bin.count = counts[id] || 0;
+            if (bin.count > 0) {
+                counts_array.push(bin.count);
+            }
+        }
+        // Now that we have an array of counts, we can set up the quantile scale
+        colorscale = colorscale.domain(counts_array).range(colors);
+        // And render the appropriate legend
+        renderLegend();
+
+        // Now, we loop through the bins and actually color them
         for (var i=0; i<bin_layers.length; i++) {
             var _count = bin_layers[i].count;
+            // Don't display bins with 0 incidents
             if (_count < 1) {
                 var _color = 'grey';
                 var _opacity = 0;
@@ -465,21 +528,20 @@ line,rect {
             } else {
                 bin_layers[i].addTo(map);
                 var _color = colorscale(_count);
-                var _opacity = 0.6;
+                var _opacity = 0.4;
             }
-
             var style = _.extend(
                 base_style,
                 {
                     fillColor: _color,
                     fillOpacity: _opacity
                 });
+
             bin_layers[i].setStyle(style);
         }
     }
 
-    var modalTemplate = _.template($('#modal-template').html());
-
+    // Handles AJAX-ing in the data when a bin is clicked
     function openModal(bin_id) {
         $.ajax("/api/bin/" + bin_id + ".json/", {
             success: function(data) {      
@@ -493,17 +555,19 @@ line,rect {
                 } else {
                     width = width * 0.7;
                 }
+
                 renderChart(data['time_series'], width);
             }
         })
     }
 
+    // Get the bin GeoJSON
     $.getJSON("{% url 'bins-json' %}", function(response) {
         bins = L.geoJson(response, {
             style: binStyle,
         }).addTo(map);
 
-        /* Set up the event listeners to open the modal */
+        // Set up the event listeners to open the modal
         _.each(bins.getLayers(), function(bin) {
             bin.on('click', function(e) {
                 openModal(e.target.feature.properties.id);
@@ -517,13 +581,14 @@ line,rect {
         view.render();
     });
 
-    /* Takes array of incidents and returns number of incidents in each bin */
+    // Takes array of incidents and returns number of incidents in each bin
     function get_bin_counts(data) {
         return _.countBy(data, function(incident) {
             return incident.bin;
         });
     }
 
+    // Get the incident data, unpack it and set up the PourOver view
     $.ajax("{% static 'json/packed.json' %}", {
            success: function(data) {
               data = Tamper.unpackData(data);
@@ -564,6 +629,8 @@ line,rect {
 
               view = new BinCountView("default_view", collection);
     }});
+
+    /* Handle control changes */
 
     $('.target').change(function() {
         var checkedVals = $('.target:checkbox:checked').map(function() {

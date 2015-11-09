@@ -138,11 +138,7 @@ STATICFILES_DIRS = (
 BUILD_DIR = os.path.join(BASE_DIR, 'build')
 
 BAKERY_VIEWS = (
-    'crime.views.Bins',
-    'crime.views.BinDetailView',
-    'crime.views.BinsJSON',
-    'crime.views.BinCounts',
-    'crime.views.IncidentListView'
+    'ucpd.views.Main',
+    'ucpd.views.BinsJSON',
+    'ucpd.views.BinDetailJSON',
 )
-
-BAKERY_GZIP = True

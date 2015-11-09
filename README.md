@@ -37,3 +37,12 @@ A spreadsheet that maps the addresses in the raw data to geocoded points, which 
 [Tamper](http://nytimes.github.io/tamper/) is a magical New York Times library for efficient serialization of data. We use Tamper as opposed to sending JSON compressed in a more standard way in order to experiment with sending *all* incidents to the user's browser, then using [Pourover](https://github.com/NYTimes/pourover) to quickly sort and filter that data on the client-side.
 
 This means we can't send coordinates for each individual incident. Instead, we assign incidents to a bin and then send only the incident's bin ID. With small enough bins, this gives a fairly detailed look at the spatial distribution of crime, and keeps the data file being sent remarkably light. While it's more of an experiment than something of great use for this scale of data (~10 thousand incidents), it's an interesting model for scaling up to hundreds of thousands of incidents -- something we plan to try with historical data from the city police department.
+
+# Building
+
+Running servers is for suckers. Build this site out as flat files (including the JSON data for each bin used by in modal) by running
+
+```
+python manage.py build
+```
+Thanks [django-bakery](https://github.com/datadesk/django-bakery)!

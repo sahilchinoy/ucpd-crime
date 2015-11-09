@@ -1,19 +1,28 @@
+import os
 import csv
 import json
 from collections import OrderedDict
+from django.conf import settings
 from django.db.models import Count, Max
 from django.shortcuts import render
+from django.test.client import RequestFactory
 from django.views.generic import ListView, DetailView, TemplateView
 from django.core.serializers import serialize
 from django.contrib.gis.db import models
 from django.contrib.gis.geos import GEOSGeometry
 from django.http import Http404, HttpResponse
-from bakery.views import BuildableTemplateView, BuildableListView, BuildableDetailView
+from bakery.views import BuildableTemplateView, BuildableDetailView
 from ucpd.models import Incident, Bin, Statistics
 
+
 class Main(BuildableTemplateView):
-    template_name="main.html"
-    build_path="index.html"
+    """
+    The landing page.
+    """
+
+    template_name = "main.html"
+    build_path = "index.html"
+
 
 # APIs
 class JSONResponseMixin(object):
@@ -38,6 +47,7 @@ class JSONResponseMixin(object):
         # -- can be serialized as JSON.
         return json.dumps(context)
 
+
 class BuildableJSONView(JSONResponseMixin, BuildableTemplateView):
     # Nothing more than standard bakery configuration here
     build_path = 'jsonview.json'
@@ -53,8 +63,46 @@ class BuildableJSONView(JSONResponseMixin, BuildableTemplateView):
         """
         return self.get(self.request).content
 
-class BinDetailJSON(DetailView):
-    model = Bin
+
+class BinsJSON(BuildableJSONView):
+    """
+    Returns GeoJSON of all bins with at least one incident.
+    """
+
+    build_path = "api/bins.json"
+
+    def get_context_data(self, **kwargs):
+        bins = Bin.objects.exclude(incidents=None)
+        features = []
+        for hbin in bins:
+            as_dict = {
+                "type": "Feature",
+                "geometry": json.loads(hbin.geom.geojson),
+                "properties": {
+                    "id": hbin.id,
+                }
+            }
+            features.append(as_dict)
+        objects = {
+            "type": "FeatureCollection",
+            "features": features,
+        }
+        return objects
+
+
+class BinDetailJSON(BuildableDetailView):
+    """
+    Returns counts and time-series data for a particular bin.
+    """
+
+    queryset = Bin.objects.exclude(incidents=None)
+
+    def get_build_path(self, obj):
+        dir_path = "api/bin"
+        dir_path = os.path.join(settings.BUILD_DIR, dir_path)
+        os.path.exists(dir_path) or os.makedirs(dir_path)
+        path = os.path.join(dir_path,"{}.json".format(obj.id))
+        return path
 
     def get_counts(self):
         """
@@ -114,22 +162,30 @@ class BinDetailJSON(DetailView):
         avg['2014'] = stats.mean_14
 
         time_series = []
+        time_comparison = {}
+
         for year in range(2010, 2015):
             incidents = self.object.incidents.exclude(category='N') \
                             .filter(date__year=year) 
             count = incidents.count()
             time_series.append({
-                'label': str(year),
-                'amt': count,
+                'Group': str(year),
+                'count': count,
                 'avg': avg[str(year)],
             })
-        return time_series
+
+        if time_series[3]['count'] > 0:
+            diff = time_series[4]['count'] - time_series[3]['count']
+            time_comparison = 100 * diff / time_series[3]['count']
+        else:
+            time_comparison = 100
+
+        return time_series, time_comparison
 
     def get_context_data(self, **kwargs):
         context = {}
         context['counts'] = self.get_counts()
-        context['time_series'] = self.get_time_series()
-
+        context['time_series'], context['time_comparison'] = self.get_time_series()
         return context
 
     def render_to_response(self, context, **response_kwargs):
@@ -155,37 +211,14 @@ class BinDetailJSON(DetailView):
 
     def convert_context_to_json(self, context):
         "Convert the context dictionary into a JSON object"
-        # Note: This is *EXTREMELY* naive; in reality, you'll need
-        # to do much more complex handling to ensure that arbitrary
-        # objects -- such as Django model instances or querysets
-        # -- can be serialized as JSON.
         return json.dumps(context)
 
-class HoursJSON(BuildableJSONView):
-    build_path = "api/hours.json/index.html"
-
-    def get_context_data(self, **kwargs):
-        response = {}
-        days = []
-        for day in range(1,8):
-            qset = Incident.objects.filter(agency='UCPD').filter(category__in=['V','P'])
-            filtered_day = qset.filter(date__week_day=day)
-            for hour in range(0,24):
-                value = filtered_day.filter(time__hour=hour).count()
-                days.append(
-                    {
-                        "day": day,
-                        "hour": hour + 1,
-                        "value": value
-                    }
-                )
-        response['days'] = days
-        return response
+# Views to generate CSVs for visualizations
 
 def hours(request):
     """
-    Returns CSV of total crime, violent crime and property crime by month
-    from 2010 to 2015.
+    Returns CSV of total crime, violent crime and property crime by hour
+    by day.
     """
     # Create the HttpResponse object with the appropriate CSV header.
     response = HttpResponse(content_type='text/csv')
@@ -202,6 +235,7 @@ def hours(request):
             writer.writerow([day, hour + 1, count, v_count, p_count])
 
     return response
+
 
 def months(request):
     """
@@ -223,25 +257,4 @@ def months(request):
             writer.writerow([str(month) + '/' + str(year), count, v_count, p_count])
 
     return response
-
-class BinsJSON(BuildableJSONView):
-    build_path = "api/bins.json/index.html"
-
-    def get_context_data(self, **kwargs):
-        bins = Bin.objects.all()
-        features = []
-        for hbin in bins:
-            as_dict = {
-                "type": "Feature",
-                "geometry": json.loads(hbin.geom.geojson),
-                "properties": {
-                    "id": hbin.id,
-                }
-            }
-            features.append(as_dict)
-        objects = {
-            "type": "FeatureCollection",
-            "features": features,
-        }
-        return objects
 
