@@ -452,8 +452,8 @@ line, rect {
         fillColor: 'grey',
         fillOpacity: 0,
         stroke: false,
-        color: 'white',
-        weight: 1,
+        color: 'black',
+        weight: 2,
     }
     var binStyle = function(featureData) {
         return base_style;
@@ -549,11 +549,24 @@ line, rect {
             style: binStyle,
         }).addTo(map);
 
-        // Set up the event listeners to open the modal
+        // Set up the event listeners
         _.each(bins.getLayers(), function(bin) {
+            // To open the modal
             bin.on('click', function(e) {
                 openModal(e.target.feature.properties.id);
-            })
+            });
+
+            // Hover behavior
+            bin.on('mouseover', function(e) {
+                e.target.setStyle({
+                    stroke: true,
+                });
+            });
+            bin.on('mouseout', function(e) {
+                e.target.setStyle({
+                    stroke: false,
+                });
+            });
         });
 
         $('#binModal').modal({
@@ -658,8 +671,6 @@ line, rect {
     function filterMonthYears(fromYear, toYear, fromMonth, toMonth) {
         var from = month_mapping[fromMonth] + " " + fromYear;
         var to = month_mapping[toMonth] + " " + toYear;
-        console.log(from);
-        console.log(to);
         view.collection.filters.month_year.query([from, to]);
         view.render();
     }

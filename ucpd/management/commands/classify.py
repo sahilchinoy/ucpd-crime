@@ -19,7 +19,7 @@ class Command(BaseCommand):
 
         classifier = {}
         path = os.path.join(settings.DATA_DIR,'classification.csv')
-        with open(path,'r') as csvfile:
+        with open(path,'rU') as csvfile:
             reader = csv.DictReader(csvfile)
             for row in reader:
                 classifier[row['key']] = (row['description'], row['category'])
