@@ -355,9 +355,9 @@ line, rect {
     var geocoderMarker;
     var geocoded = false;
     var format = d3.format("0,000");
+    var view;
 
     // thanks colorbrewer
-    /*var colors = ['rgb(254,240,217)','rgb(253,212,158)','rgb(253,187,132)','rgb(252,141,89)','rgb(239,101,72)','rgb(215,48,31)','rgb(153,0,0)'];*/
     var colors = ['#ffffcc','#ffeda0','#fed976','#feb24c','#fd8d3c','#fc4e2a','#e31a1c'];
     var colorscale = d3.scale.quantile();
 
@@ -484,7 +484,7 @@ line, rect {
     var color_bins = function(counts) {
         var bin_layers = bins.getLayers();
 
-        // First, we need to establish the color scale
+        // First, we establish the color scale
         counts_array = [];
         for (var i=0; i<bin_layers.length; i++) {
             var bin = bin_layers[i];
