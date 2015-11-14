@@ -49,7 +49,7 @@ td.big-number {
 
 /* Map */
 
-#map {
+#map-container {
     height: 600px;
     margin: 20px 0;
 }
@@ -58,6 +58,14 @@ td.big-number {
     padding: 0 8px;
     background-color: #fff;
     background-color: rgba(255,255,255,0.9);
+}
+
+.lbl {
+    font-size: 14px;
+}
+
+#total-count {
+    font-weight: bold;
 }
 
 /* For legend generation */
@@ -195,7 +203,7 @@ line, rect {
 
 <div class="modal fade" id="binModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"></div>
 
-<div class="map" id="map" style="height:600px;"></div>
+<div class="map" id="map-container" style="height:600px;"></div>
 
 <script type="text/template" id="modal-template">
 <div class="modal-dialog" role="document">
@@ -273,102 +281,31 @@ line, rect {
 
             <div class="checkbox">
                 <label>
-                    <input class="target" type="checkbox" value="Q" checked> Quality of life
+                    <input class="target" type="checkbox" value="Q" checked> Quality-of-life
                 </label>
             </div>
         </form>
     </div>
 </script>
 
-<script type="text/template" id="hour-template">
-    <form>
-        12 a.m. &nbsp;
-        <input id="hour-input" type="text" value="" data-slider-min="0" data-slider-max="23" data-slider-step="1" data-slider-value="[0,23]"/>
-        &nbsp; 11 p.m.
-    </form>
-</script>
-
-<script type="text/template" id="month-template">
-    <div style="text-align: right;">
-        <div style="float: right;">
-            <label>From
-            <select class="selectpicker" id="from-month" title="Month From" data-width="110px">
-                <option selected="selected">Jan</option>
-                <option>Feb</option>
-                <option>Mar</option>
-                <option>Apr</option>
-                <option>May</option>
-                <option>Jun</option>
-                <option>Jul</option>
-                <option>Aug</option>
-                <option>Sep</option>
-                <option>Oct</option>
-                <option>Nov</option>
-                <option>Dec</option>
-            </select>
-            </label>
-            <select class="selectpicker" id="from-year" title="Year From" data-width="100px">
-                    <option selected="selected">2010</option>
-                    <option>2011</option>
-                    <option>2012</option>
-                    <option>2013</option>
-                    <option>2014</option>
-                    <option>2015</option>
-            </select>
-        </div>
-
-        <br />
-
-        <div style="float: right;">
-            <label>To
-            <select class="selectpicker" id="to-month" title="Month To" data-width="110px">
-                <option>Jan</option>
-                <option>Feb</option>
-                <option>Mar</option>
-                <option>Apr</option>
-                <option>May</option>
-                <option>Jun</option>
-                <option>Jul</option>
-                <option>Aug</option>
-                <option selected="selected">Sep</option>
-                <option>Oct</option>
-                <option>Nov</option>
-                <option>Dec</option>
-            </select>
-            </label>
-            <select class="selectpicker" id="to-year" title="Year To" data-width="100px">
-                <option>2010</option>
-                <option>2011</option>
-                <option>2012</option>
-                <option>2013</option>
-                <option>2014</option>
-                <option selected="selected">2015</option>
-            </select>
-        </div>
-    </div>
-</script>
-
 <script type="text/javascript">
-//$(document).ready(function() {
+$(document).ready(function() {
     // some globals
     var bins;
-    var geocoderMarker;
-    var geocoded = false;
-    var format = d3.format("0,000");
     var view;
+    var modalTemplate = _.template($('#modal-template').html());
+    var format = d3.format("0,000");
 
     // thanks colorbrewer
     var colors = ['#ffffcc','#ffeda0','#fed976','#feb24c','#fd8d3c','#fc4e2a','#e31a1c'];
     var colorscale = d3.scale.quantile();
-
-    var modalTemplate = _.template($('#modal-template').html());
-
+    
     /*
     * Set up the basic map
     */
 
     // create a map in the "map" div, set the view to a given place and zoom
-    var map = L.map('map', {
+    var map = L.map('map-container', {
         center: [37.8716844,-122.2576889],
         zoom: 15,
         minZoom: 15,
@@ -403,12 +340,6 @@ line, rect {
         update: function(html) {
             this._html = html;
             this.getContainer().innerHTML = html;
-        },
-        hide: function() {
-            $( this.getContainer() ).css('display','none');
-        },
-        show: function() {
-            $( this.getContainer() ).css('display','block');
         }
     });
 
@@ -433,14 +364,10 @@ line, rect {
     });
 
     // all the controls
+    var total_label = new CornerOverlay('Showing <span id="total-count"></span> incidents.','topright','lbl overlay')
+    map.addControl(total_label);
     var severitytoggle = new CornerOverlay($('#severity-toggle-template').html(),'topright');
     map.addControl(severitytoggle);
-    var hourtoggle = new CornerOverlay($('#hour-template').html(),'topright');
-    map.addControl(hourtoggle);
-    var monthtoggle = new CornerOverlay($('#month-template').html(),'topright');
-    map.addControl(monthtoggle);
-    var total_label = new CornerOverlay('<p class="text-label">Showing <span class="lbl" id="total-count"></span> incidents.</p>','topleft','total-label')
-    map.addControl(total_label);
     var zoom = new L.control.zoom({position: 'topleft'})
     map.addControl(zoom);
     var fullscreen = new L.Control.Fullscreen;
@@ -472,11 +399,11 @@ line, rect {
         }
 
         var legend_title= 'Number of incidents'
-
         var legendData  = {
             'title': legend_title,
             'items': _items,
         }
+
         legend.addData(legendData);
     }
 
@@ -525,7 +452,7 @@ line, rect {
 
     // Handles AJAX-ing in the data when a bin is clicked
     function openModal(bin_id) {
-        $.ajax("/api/bin/" + bin_id + ".json/", {
+        $.ajax("/api/bin/" + bin_id + ".json", {
             success: function(data) {      
                 html = modalTemplate(data);
                 $('#binModal').html(html);
@@ -589,29 +516,8 @@ line, rect {
               data = Tamper.unpackData(data);
               collection = new PourOver.Collection(data);
               var category_filter = PourOver.makeInclusionFilter("category",["Q","V","P"]);
-              var years = ["2010", "2011", "2012", "2013", "2014", "2015"];
-              var year_filter = PourOver.makeDVrangeFilter("year", years);
 
-              var hours = [];
-              for (var i = 0; i < 24; i++) {
-                hours.push(i.toString());
-              }
-              var hour_filter = PourOver.makeDVrangeFilter("hour", hours);
-
-              var months = [];
-              for (var i = 1; i <= 12; i++) {
-                months.push(i.toString());
-              }
-
-              var month_years = [];
-              years.forEach(function(year) {
-                months.forEach(function(month) {
-                  month_years.push(month.toString() + " " + year.toString());
-                });
-              });
-
-              var month_year_filter = PourOver.makeDVrangeFilter("month_year", month_years);
-              collection.addFilters([category_filter, year_filter, hour_filter, month_year_filter]);
+              collection.addFilters([category_filter]);
 
               BinCountView = PourOver.View.extend({
                 render: function() {
@@ -625,8 +531,7 @@ line, rect {
               view = new BinCountView("default_view", collection);
     }});
 
-    /* Handle control changes */
-
+    // Handle control changes
     $('.target').change(function() {
         var checkedVals = $('.target:checkbox:checked').map(function() {
             return this.value;
@@ -639,96 +544,5 @@ line, rect {
             view.render();
         }
     });
-
-    $("#hour-input").slider({
-        id: 'hour-slider'
-    });
-
-    $("#hour-input").on("slide", function(slideEvt) {
-        begin = slideEvt.value[0].toString();
-        end = slideEvt.value[1].toString();
-        hours = [begin,end];
-        view.collection.filters.hour.query(hours);
-        view.render();
-    });
-
-    // the month_filter uses numbers to rep months
-    const month_mapping = {
-      "Jan": "1",
-      "Feb": "2",
-      "Mar": "3",
-      "Apr": "4",
-      "May": "5",
-      "Jun": "6",
-      "Jul": "7",
-      "Aug": "8",
-      "Sep": "9",
-      "Oct": "10",
-      "Nov": "11",
-      "Dec": "12",
-    };
-
-    function filterMonthYears(fromYear, toYear, fromMonth, toMonth) {
-        var from = month_mapping[fromMonth] + " " + fromYear;
-        var to = month_mapping[toMonth] + " " + toYear;
-        view.collection.filters.month_year.query([from, to]);
-        view.render();
-    }
-
-    $("#from-month").change(function() {
-      var fromMonth = this.value.toString(),
-          toMonth = $("#to-month").val().toString(),
-          toMonthComp = toMonth.localeCompare(""),
-          fromYear = $("#from-year").val().toString(),
-          fromYearComp = fromYear.localeCompare(""),
-          toYear = $("#to-year").val().toString(),
-          toYearComp = toYear.localeCompare("");
-
-      if (toMonthComp !== 0 && fromYearComp !== 0 && toYearComp !== 0) {
-        filterMonthYears(fromYear, toYear, fromMonth, toMonth);
-      }
-    });
-
-    $("#from-year").change(function() {
-      var fromYear = this.value.toString(),
-          toYear = $("#to-year").val().toString(),
-          toYearComp = toYear.localeCompare(""),
-          fromMonth = $("#from-month").val().toString(),
-          fromMonthComp = fromMonth.localeCompare(""),
-          toMonth = $("#to-month").val().toString(),
-          toMonthComp = toMonth.localeCompare("");
-
-      if (toYearComp !== 0 && fromMonthComp !== 0 && toMonthComp !== 0) {
-        filterMonthYears(fromYear, toYear, fromMonth, toMonth);
-      }
-    });
-
-    $("#to-month").change(function() {
-      var toMonth = this.value.toString(),
-          fromMonth = $("#from-month").val().toString(),
-          fromMonthComp = fromMonth.localeCompare(""),
-          fromYear = $("#from-year").val().toString(),
-          fromYearComp = fromYear.localeCompare(""),
-          toYear = $("#to-year").val().toString(),
-          toYearComp = toYear.localeCompare("");
-
-      if (fromMonthComp !== 0 && fromYearComp !== 0 && toYearComp !== 0) {
-        filterMonthYears(fromYear, toYear, fromMonth, toMonth);
-      };
-    });
-
-    $("#to-year").change(function() {
-      var toYear = this.value.toString(),
-          fromYear = $("#from-year").val().toString(),
-          fromYearComp = fromYear.localeCompare(""),
-          fromMonth = $("#from-month").val().toString(),
-          fromMonthComp = fromMonth.localeCompare(""),
-          toMonth = $("#to-month").val().toString(),
-          toMonthComp = toMonth.localeCompare("");
-
-      if (fromYearComp !== 0 && fromMonthComp !== 0 && toMonthComp !== 0) {
-        filterMonthYears(fromYear, toYear, fromMonth, toMonth);
-      }
-    });
-//});
+});
 </script>
