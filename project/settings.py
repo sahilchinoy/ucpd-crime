@@ -73,8 +73,8 @@ WSGI_APPLICATION = 'project.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.contrib.gis.db.backends.postgis',
-        'NAME': 'ucpd',
-        'USER': 'sahilchinoy',
+        'NAME': os.environ.get('DB_NAME'),
+        'USER': os.environ.get('DB_USER'),
     }
 }
 
@@ -136,6 +136,10 @@ STATICFILES_DIRS = (
 # Bakery
 
 BUILD_DIR = os.path.join(BASE_DIR, 'build')
+
+AWS_BUCKET_NAME=os.environ.get('AWS_BUCKET_NAME')
+AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
+AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
 
 BAKERY_VIEWS = (
     'ucpd.views.Main',
