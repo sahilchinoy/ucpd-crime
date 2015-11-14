@@ -25,7 +25,7 @@ If you'd like to deploy to S3 using [django-bakery](https://github.com/datadesk/
 
 To get started from scratch, run `python manage.py load`, which will call:
 
-* `load_bins`, to import hexagonal bins from a shapefile in `data/`
+* `load_bins`, to import hexagonal bins from a shapefile in `data`
 * `load_ucpd`, to load historical UCPD crime data
 * `classify`, to collapse incident information into one of three categories: violent, property or quality-of-life
 * `locate`, to merge address information with the address database to assign each incident a latitude and longitude
@@ -36,19 +36,19 @@ To get started from scratch, run `python manage.py load`, which will call:
 Data
 -------------
 
-## Raw data
+### Raw data
 
 Incident-level comes from a PRA filed with the UC Police Department. It encompasses January 2010 to September 2015, one CSV for each year. These raw data files are stored in `data/ucpd`.
 
-## Bins
+### Bins
 
 Hexagonal bins were generate in QGIS. The shapefile is stored in `data/bins`.
 
-## Classification
+### Classification
 
 Simple spreadsheet that maps the codes in the raw data to category codes: `V` for violent crimes, `P` for property crimes and `Q` for quality-of-life crimes. `N` is reserved for crimes that we aren't interested in analyzing or displaying.
 
-## Address database
+### Address database
 
 A spreadsheet that maps the addresses in the raw data to geocoded points, which were manually corrected and checked. The address database lives in a Google spreadsheet [here](https://docs.google.com/spreadsheets/d/1z_n68MUS2c2QJFnzV4ol90Knx-KN9PfSMUKe9KAn4ZE/edit?usp=sharing).
 
