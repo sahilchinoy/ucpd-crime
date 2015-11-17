@@ -127,7 +127,7 @@ var renderColumnChart = function(config) {
     };
 
     var ticksY = 4;
-    var roundTicksFactor = 50;
+    var roundTicksFactor = 10;
 
     // Calculate actual chart dimensions
     var chartWidth = config['width'] - margins['left'] - margins['right'];

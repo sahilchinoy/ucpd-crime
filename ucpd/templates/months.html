@@ -156,8 +156,8 @@ $(document).ready(function() {
 	    };
 
 	    var ticksX = 10;
-	    var ticksY = 10;
-	    var roundTicksFactor = 5;
+	    var ticksY = 5;
+	    var roundTicksFactor = 50;
 
 	    // Mobile
 	    if (isMobile) {
@@ -215,7 +215,7 @@ $(document).ready(function() {
 	        .domain(d3.keys(config['data'][0]).filter(function(key) {
 	            return key !== dateColumn;
 	        }))
-	        .range([ 'rgb(153,0,0)','#7fcdbb','#2c7fb8','#edf8b1' ]);
+	        .range([ 'rgb(153,0,0)','#fb8072','#2c7fb8','#7fcdbb' ]);
 
 	    /*
 	     * Render the HTML legend.

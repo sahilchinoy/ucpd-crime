@@ -36,7 +36,7 @@ td.big-number {
 }
 
 .big-number.violent {
-    color: #7fcdbb;
+    color: #fb8072;
 }
 
 .big-number.property {
@@ -44,7 +44,7 @@ td.big-number {
 }
 
 .big-number.QOL {
-    color: #edf8b1;
+    color: #7fcdbb;
 }
 
 /* Map */
@@ -131,6 +131,7 @@ td.big-number {
 }
 
 /* Column chart */
+
 .chart { position: relative; }
 
 line, rect {
@@ -141,8 +142,6 @@ line, rect {
     font-size: 11px;
     -webkit-font-smoothing: antialiased;
     fill: #777;
-
-    
 
     &.y {
         path { display: none; }
@@ -191,7 +190,7 @@ line, rect {
     display: none;
 }
 
-.bars rect { fill: rgb(153,0,0); }
+.bars rect { fill: #999999; }
 
 .zero-line  {
     stroke: #666;
@@ -222,15 +221,15 @@ line, rect {
         <table>
             <tr>
                 <td class="big-number violent"><%= counts.violent %></td>
-                <td>violent crimes, <b><%= counts.comparison.violent %></b> the average of <% print(counts.mean.violent.toFixed('1')) %></td>
+                <td>violent crimes, <b><%= counts.comparison.violent %></b> the average of <% print(counts.mean.violent.toFixed('1')) %>.</td>
             </tr>
             <tr>
                 <td class="big-number property"><%= counts.property %></td>
-                <td>property crimes, <b><%= counts.comparison.violent %></b> the average of <% print(counts.mean.property.toFixed('1')) %></td>
+                <td>property crimes, <b><%= counts.comparison.violent %></b> the average of <% print(counts.mean.property.toFixed('1')) %>.</td>
             </tr>
             <tr>
                 <td class="big-number QOL"><%= counts.QOL %></td>
-                <td>quality-of-life crimes, <b><%= counts.comparison.QOL %></b> the average of <% print(counts.mean.QOL.toFixed('1')) %></td>
+                <td>quality-of-life crimes, <b><%= counts.comparison.QOL %></b> the average of <% print(counts.mean.QOL.toFixed('1')) %>.</td>
             </tr>
         </table>
 
@@ -310,7 +309,7 @@ $(document).ready(function() {
         zoom: 15,
         minZoom: 15,
         scrollWheelZoom: false,
-        maxBounds: [[37.833459, -122.325810],[37.929657, -122.211311]],
+        maxBounds: [[37.846188, -122.294424],[37.891093, -122.231725]],
         zoomControl: false,
     });
 
