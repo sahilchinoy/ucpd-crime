@@ -2,13 +2,7 @@ import os
 import csv
 import json
 from django.conf import settings
-from django.db.models import Count, Max
-from django.shortcuts import render
-from django.views.generic import ListView, DetailView, TemplateView
-from django.core.serializers import serialize
-from django.contrib.gis.db import models
-from django.contrib.gis.geos import GEOSGeometry
-from django.http import Http404, HttpResponse
+from django.http import HttpResponse
 from bakery.views import BuildableTemplateView, BuildableDetailView
 from ucpd.models import Incident, Bin, Statistics
 
@@ -17,12 +11,12 @@ class Main(BuildableTemplateView):
     """
     The landing page.
     """
-
     template_name = "main.html"
     build_path = "index.html"
 
 
 # APIs
+
 class JSONResponseMixin(object):
     """
     A mixin that can be used to render a JSON response.
@@ -66,7 +60,6 @@ class BinsJSON(BuildableJSONView):
     """
     Returns GeoJSON of all bins with at least one incident.
     """
-
     build_path = "api/bins.json"
 
     def get_context_data(self, **kwargs):
@@ -92,14 +85,13 @@ class BinDetailJSON(BuildableDetailView):
     """
     Returns counts and time-series data for a particular bin.
     """
-
     queryset = Bin.objects.exclude(incidents=None)
 
     def get_build_path(self, obj):
         dir_path = "api/bin"
         dir_path = os.path.join(settings.BUILD_DIR, dir_path)
         os.path.exists(dir_path) or os.makedirs(dir_path)
-        path = os.path.join(dir_path,"{}.json".format(obj.id))
+        path = os.path.join(dir_path, "{}.json".format(obj.id))
         return path
 
     def get_counts(self):
@@ -108,7 +100,6 @@ class BinDetailJSON(BuildableDetailView):
         broken across violent, property, and quality-of-life categories.
         Also returns mean count for each type.
         """
-
         counts = {}
         incidents = self.object.incidents.exclude(category='N')
         counts['total'] = incidents.count()
@@ -134,12 +125,10 @@ class BinDetailJSON(BuildableDetailView):
         """
         Returns number of incidents in this bin in each year.
         """
-
-        stats = Statistics.objects.first()
         time_series = []
         for year in range(2010, 2015):
             incidents = self.object.incidents.exclude(category='N') \
-                            .filter(date__year=year) 
+                            .filter(date__year=year)
             count = incidents.count()
             time_series.append({
                 'label': str(year),
@@ -179,6 +168,7 @@ class BinDetailJSON(BuildableDetailView):
         "Convert the context dictionary into a JSON object"
         return json.dumps(context)
 
+
 # Views to generate CSVs for visualizations
 
 def hours(request):
@@ -192,9 +182,10 @@ def hours(request):
 
     writer = csv.writer(response)
     writer.writerow(['day', 'hour', 'total', 'violent', 'property'])
-    for day in range(1,8):
-        qset = Incident.objects.filter(date__week_day=day).exclude(category='N')
-        for hour in range(0,24):
+    for day in range(1, 8):
+        qset = Incident.objects.filter(date__week_day=day) \
+                .exclude(category='N')
+        for hour in range(0, 24):
             count = qset.filter(time__hour=hour).count()
             v_count = qset.filter(time__hour=hour).filter(category='V').count()
             p_count = qset.filter(time__hour=hour).filter(category='P').count()
@@ -213,15 +204,19 @@ def months(request):
     response['Content-Disposition'] = 'attachment; filename="months.csv"'
 
     writer = csv.writer(response)
-    writer.writerow(['date', 'Total', 'Violent', 'Property', 'Quality-of-life'])
+    writer.writerow(['date', 'Total', 'Violent', 'Property',
+                    'Quality-of-life'])
     for year in range(2010, 2016):
         qset = Incident.objects.exclude(category='N').filter(date__year=year)
-        for month in range(1,13):
+        for month in range(1, 13):
             count = qset.filter(date__month=month).count()
-            v_count = qset.filter(date__month=month).filter(category='V').count()
-            p_count = qset.filter(date__month=month).filter(category='P').count()
-            q_count = qset.filter(date__month=month).filter(category='Q').count()
-            writer.writerow([str(month).zfill(2) + '/' + str(year), count, v_count, p_count, q_count])
+            v_count = qset.filter(date__month=month) \
+                .filter(category='V').count()
+            p_count = qset.filter(date__month=month) \
+                .filter(category='P').count()
+            q_count = qset.filter(date__month=month) \
+                .filter(category='Q').count()
+            writer.writerow([str(month).zfill(2) + '/' + str(year),
+                             count, v_count, p_count, q_count])
 
     return response
-

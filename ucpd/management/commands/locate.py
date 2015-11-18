@@ -9,6 +9,7 @@ from ucpd.models import Incident
 
 logger = logging.getLogger('django')
 
+
 class Command(BaseCommand):
     help = "Geocode each incident."
 
@@ -18,7 +19,6 @@ class Command(BaseCommand):
         Loop through incidents, using a .csv file of addresses to lat/long
         pairs to geocode each incident.
         """
-
         # Build a dictionary of addresses that we've checked for accuracy
         addresses = {}
         addresses_path = os.path.join(
@@ -40,7 +40,8 @@ class Command(BaseCommand):
         for incident in Incident.objects.all():
             geocoded_dict = addresses.get(incident.address)
             if geocoded_dict and geocoded_dict['lat']:
-                _str = 'POINT(' + geocoded_dict['lon'] + ' ' + geocoded_dict['lat'] + ')'
+                _str = 'POINT(' + geocoded_dict['lon'] + ' ' \
+                        + geocoded_dict['lat'] + ')'
                 incident.point = fromstr(_str, srid=4326)
                 incident.save()
                 counter += 1

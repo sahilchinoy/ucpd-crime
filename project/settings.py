@@ -1,11 +1,6 @@
 import os
 import logging
 
-try:
-    from settings_dev import *
-except ImportError as e:
-    pass
-
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA_DIR = os.path.join(BASE_DIR,'data')
 

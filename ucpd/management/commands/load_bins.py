@@ -10,7 +10,7 @@ class Command(BaseCommand):
     help = "Load shapefile of hexagonal bins into database."
 
     def handle(self, *args, **options):
-    	Bin.objects.all().delete()
+        Bin.objects.all().delete()
         path = os.path.join(
             settings.DATA_DIR, 'bins', 'bins.shp')
         mapping = {"geom": "POLYGON"}

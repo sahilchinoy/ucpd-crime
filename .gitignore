@@ -2,7 +2,6 @@
 *.pyc
 settings_dev.py
 staticfiles/*
-data/tamper/incidents.json
-project/static/json/packed.json
 node_modules/*
 build/*
+ucpd/static/json/packed.json

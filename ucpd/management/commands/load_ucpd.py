@@ -3,7 +3,6 @@ import csv
 import logging
 from datetime import datetime
 from django.conf import settings
-from django.contrib.gis.geos import fromstr
 from django.core.management.base import BaseCommand
 from ucpd.models import Incident
 
@@ -14,16 +13,15 @@ class Command(BaseCommand):
     help = "Load historical crime data from UCPD."
 
     def handle(self, *args, **options):
-        
         Incident.objects.all().delete()
 
         dir_path = os.path.join(
             settings.DATA_DIR, 'ucpd')
 
         for path in [os.path.join(dir_path, file_path)
-            for file_path
-            in os.listdir(dir_path)
-            if file_path.endswith('.csv')]:
+                     for file_path
+                     in os.listdir(dir_path)
+                     if file_path.endswith('.csv')]:
 
             # List of incidents we'll use in our bulk create
             bulk_incidents = []

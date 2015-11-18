@@ -4,6 +4,7 @@ from django.core.management.base import BaseCommand
 
 logger = logging.getLogger('django')
 
+
 class Command(BaseCommand):
     help = "Set up the project by loading bins and \
     incidents, assigning classifications and bins, \

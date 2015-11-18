@@ -81,7 +81,7 @@ function packIt(incidents){
 		}
 	}));
 
-	fs.writeFile("./project/static/json/packed.json", tamp.toJSON())
+	fs.writeFile("./ucpd/static/json/packed.json", tamp.toJSON())
 	console.log("Successfully packed.")
 }
 

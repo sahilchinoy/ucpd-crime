@@ -8,6 +8,7 @@ from ucpd.models import Incident
 
 logger = logging.getLogger('django')
 
+
 class Command(BaseCommand):
     help = "Assign each incident in the database a classification."
 
@@ -18,13 +19,12 @@ class Command(BaseCommand):
         """
 
         classifier = {}
-        path = os.path.join(settings.DATA_DIR,'classification.csv')
-        with open(path,'rU') as csvfile:
+        path = os.path.join(settings.DATA_DIR, 'classification.csv')
+        with open(path, 'rU') as csvfile:
             reader = csv.DictReader(csvfile)
             for row in reader:
                 classifier[row['key']] = (row['description'], row['category'])
         return classifier
-
 
     @transaction.atomic
     def handle(self, *args, **options):

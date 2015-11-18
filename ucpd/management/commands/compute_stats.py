@@ -1,13 +1,11 @@
-import os
-import csv
 import logging
 import numpy as np
-from django.conf import settings
 from django.db import transaction
 from django.core.management.base import BaseCommand
 from ucpd.models import Bin, Statistics
 
 logger = logging.getLogger('django')
+
 
 class Command(BaseCommand):
     help = "Compute statistics."
@@ -20,7 +18,6 @@ class Command(BaseCommand):
         only, property incidents only and quality-of-life
         incidents only.
         """
-
         ranks = []
         counts = []
         V_counts = []
@@ -35,7 +32,7 @@ class Command(BaseCommand):
         for hbin in Bin.objects.exclude(incidents=None):
             incidents = hbin.incidents.exclude(category='N')
 
-            ranks.append((hbin.id,incidents.count()))
+            ranks.append((hbin.id, incidents.count()))
             counts.append(incidents.count())
 
             V_incidents = incidents.filter(category='V')
@@ -70,28 +67,28 @@ class Command(BaseCommand):
 
         Statistics.objects.all().delete()
         Statistics(
-            bin_count = Bin.objects.exclude(incidents=None).count(),
+            bin_count=Bin.objects.exclude(incidents=None).count(),
 
-            max_count = np.max(counts),
-            max_V = np.max(V_counts),
-            max_P = np.max(P_counts),
-            max_Q = np.max(Q_counts),
+            max_count=np.max(counts),
+            max_V=np.max(V_counts),
+            max_P=np.max(P_counts),
+            max_Q=np.max(Q_counts),
 
-            min_count = np.min(counts),
-            min_V = np.min(V_counts),
-            min_P = np.min(P_counts),
-            min_Q = np.min(Q_counts),
+            min_count=np.min(counts),
+            min_V=np.min(V_counts),
+            min_P=np.min(P_counts),
+            min_Q=np.min(Q_counts),
 
-            mean_count = np.mean(counts),
-            mean_V = np.mean(V_counts),
-            mean_P = np.mean(P_counts),
-            mean_Q = np.mean(Q_counts),
+            mean_count=np.mean(counts),
+            mean_V=np.mean(V_counts),
+            mean_P=np.mean(P_counts),
+            mean_Q=np.mean(Q_counts),
 
-            mean_10 = np.mean(counts_10),
-            mean_11 = np.mean(counts_11),
-            mean_12 = np.mean(counts_12),
-            mean_13 = np.mean(counts_13),
-            mean_14 = np.mean(counts_14)
+            mean_10=np.mean(counts_10),
+            mean_11=np.mean(counts_11),
+            mean_12=np.mean(counts_12),
+            mean_13=np.mean(counts_13),
+            mean_14=np.mean(counts_14)
         ).save()
 
         logger.info('Computed statistics.')

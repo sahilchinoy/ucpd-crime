@@ -5,6 +5,7 @@ from ucpd.models import Incident, Bin
 
 logger = logging.getLogger('django')
 
+
 class Command(BaseCommand):
     help = "Assigns each incident a bin."
 
@@ -19,7 +20,8 @@ class Command(BaseCommand):
         located = 0
         incidents = Incident.objects.exclude(point=None)
         logger.info(
-            "Attempting to locate the {} of {} incidents with a location".format(
+            "Attempting to locate the {} of {} incidents with \
+            a location".format(
                 incidents.count(),
                 Incident.objects.all().count()))
 

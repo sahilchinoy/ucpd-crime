@@ -1,12 +1,11 @@
-import json
 from django.contrib.gis.db import models
 
 
 class Bin(models.Model):
     """
-    Hexagonal bins, created using QGIS and imported using the load_bins command.
+    Hexagonal bins, created using QGIS and imported using the load_bins
+    command.
     """
-
     geom = models.PolygonField(srid=4326, null=True)
     population = models.FloatField(null=True)
     rank = models.IntegerField(null=True)
@@ -16,11 +15,11 @@ class Bin(models.Model):
     def get_absolute_url(self):
         return "/bins/{}/".format(self.id)
 
+
 class Incident(models.Model):
     """
     A single criminal incident reported to UCPD.
     """
-
     # Provided in raw data
     caseno = models.CharField(
         db_index=True,
@@ -84,7 +83,6 @@ class Statistics(models.Model):
     """
     Store some global statistics for use in comparisons.
     """
-
     bin_count = models.IntegerField(null=True)
 
     max_count = models.IntegerField(null=True)
