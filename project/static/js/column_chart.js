@@ -65,7 +65,6 @@ var GRAPHIC_DEFAULT_WIDTH = 600;
 var MOBILE_THRESHOLD = 500;
 
 // Global vars
-var pymChild = null;
 var isMobile = false;
 var graphicData = null;
 
@@ -117,7 +116,7 @@ var renderColumnChart = function(config) {
 
     var aspectWidth = isMobile ? 4 : 16;
     var aspectHeight = isMobile ? 3 : 9;
-    var valueGap = 10;
+    var valueGap = 12;
 
     var margins = {
         top: 5,
@@ -127,7 +126,7 @@ var renderColumnChart = function(config) {
     };
 
     var ticksY = 4;
-    var roundTicksFactor = 10;
+    var roundTicksFactor = 20;
 
     // Calculate actual chart dimensions
     var chartWidth = config['width'] - margins['left'] - margins['right'];
@@ -206,20 +205,6 @@ var renderColumnChart = function(config) {
         .call(yAxis)
 
     /*
-     * Render grid to chart.
-     */
-    var yAxisGrid = function() {
-        return yAxis;
-    };
-
-    chartElement.append('g')
-        .attr('class', 'y grid')
-        .call(yAxisGrid()
-            .tickSize(-chartWidth, 0)
-            .tickFormat('')
-        );
-
-    /*
      * Render bars to chart.
      */
     chartElement.append('g')
@@ -270,12 +255,12 @@ var renderColumnChart = function(config) {
         .enter()
         .append('text')
             .text(function(d) {
-                if (d[valueColumn] > 2) {
+                if (d[valueColumn] > 0) {
                     return d[valueColumn].toFixed(0);
-                } else {
+                }
+                else {
                     return '';
                 }
-                
             })
             .attr('x', function(d, i) {
                 return xScale(d[labelColumn]) + (xScale.rangeBand() / 2);
@@ -305,7 +290,7 @@ var renderColumnChart = function(config) {
                         return textHeight + valueGap;
                     } else {
                         d3.select(this).classed('out', true)
-                        return -(textHeight - valueGap / 2);
+                        return -(textHeight + valueGap);
                     }
                 }
             })

@@ -106,8 +106,9 @@ class BinDetailJSON(BuildableDetailView):
         """
         Returns count of incidents in this bin (excluding category N),
         broken across violent, property, and quality-of-life categories.
-        Also returns maximum bin count.
+        Also returns mean count for each type.
         """
+
         counts = {}
         incidents = self.object.incidents.exclude(category='N')
         counts['total'] = incidents.count()
@@ -117,27 +118,12 @@ class BinDetailJSON(BuildableDetailView):
 
         stats = Statistics.objects.first()
 
-        counts['max'] = {
-            'total': stats.max_count,
-            'violent': stats.max_V,
-            'property': stats.max_P,
-            'QOL': stats.max_Q
-        }
-
         counts['mean'] = {
             'total': stats.mean_count,
             'violent': stats.mean_V,
             'property': stats.mean_P,
             'QOL': stats.mean_Q
         }
-
-        counts['comparison'] = {}
-        categories = ('total','violent','property','QOL')
-        for category in categories:
-            if counts[category] > counts['mean'][category]:
-                counts['comparison'][category] = 'above'
-            else:
-                counts['comparison'][category] = 'below'
 
         counts['rank'] = self.object.rank
         counts['bin_count'] = stats.bin_count
@@ -146,14 +132,11 @@ class BinDetailJSON(BuildableDetailView):
 
     def get_time_series(self):
         """
-        Returns count of incidents in this bin (excluding category N),
-        broken across violent, property, and quality-of-life categories.
+        Returns number of incidents in this bin in each year.
         """
 
         stats = Statistics.objects.first()
-
         time_series = []
-
         for year in range(2010, 2015):
             incidents = self.object.incidents.exclude(category='N') \
                             .filter(date__year=year) 
@@ -163,18 +146,12 @@ class BinDetailJSON(BuildableDetailView):
                 'amt': count,
             })
 
-        if time_series[3]['amt'] > 0:
-            diff = time_series[4]['amt'] - time_series[3]['amt']
-            time_comparison = 100 * diff / time_series[3]['amt']
-        else:
-            time_comparison = 100
-
-        return time_series, time_comparison
+        return time_series
 
     def get_context_data(self, **kwargs):
         context = {}
         context['counts'] = self.get_counts()
-        context['time_series'], context['time_comparison'] = self.get_time_series()
+        context['time_series'] = self.get_time_series()
         return context
 
     def render_to_response(self, context, **response_kwargs):

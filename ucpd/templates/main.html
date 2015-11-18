@@ -3,14 +3,14 @@
 {% load static from staticfiles %}
 
 {% block title %}Crime on Campus | The Daily Californian{% endblock %}
-{% block description %}Analyzing crime around UC Berkeley.{% endblock %}
+{% block description %}Analyzing crime around the UC Berkeley campus.{% endblock %}
 {% block extra-meta %}
 <meta name="twitter:card" content="summary_large_image"/>
 <meta name="twitter:description" content="Analyzing crime around the UC Berkeley campus."/>
 <meta name="twitter:title" content="Crime on Campus | The Daily Californian"/>
 <meta name="twitter:site" content="@dailycal"/>
 <meta name="twitter:domain" content="The Daily Californian"/>
-<meta name="twitter:image" content=""/>
+<meta name="twitter:image" content="http://www.dailycal.org/assets/uploads/2015/11/crime_shareimage.jpg"/>
 <meta name="twitter:creator" content="@dailycal"/>
 <meta property="og:locale" content="en_US"/>
 <meta property="og:type" content="article"/>
@@ -18,7 +18,7 @@
 <meta property="og:url" content="http://projects.dailycal.org/crime/" />
 <meta property="og:type" content="article" />
 <meta property="og:description" content="Analyzing crime around the UC Berkeley campus." />
-<meta property="og:image" content="" />
+<meta property="og:image" content="http://www.dailycal.org/assets/uploads/2015/11/crime_shareimage.jpg" />
 <meta property="og:site_name" content="The Daily Californian"/>
 <meta property="article:publisher" content="https://www.facebook.com/dailycal"/>
 <meta property="fb:admins" content="877855486"/>
@@ -28,8 +28,79 @@
 <link href="//api.tiles.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v0.0.2/leaflet.fullscreen.css" rel="stylesheet" />
 
 <style type"text/css">
+    body {
+        padding: 70px 0 20px 0;
+    }
+    h1, h2 {
+        font-family: Georgia;
+        text-transform: uppercase;
+    }
+    p {
+        font-family: Georgia;
+    }
+    .navbar {
+        border-radius: 0;
+    }
+    .navbar a {
+        -o-transition:.5s;
+        -ms-transition:.5s;
+        -moz-transition:.5s;
+        -webkit-transition:.5s;
+        transition:.5s;
+    }
+    .navbar-brand {
+        height: auto;
+        padding-top: 8px ;
+        padding-bottom:0px;
+    }
+    h2.navbar-title, h2.small-brand {
+        margin-top: 8px;
+    }
+    h2.navbar-title a {
+        color: white;
+    }
+    h2.navbar-title a:hover {
+        color: white;
+    }
+    h2.small-brand a:hover {
+        color: white;
+        text-decoration: none;
+    }
+    .navbar-header {
+        z-index: 1000;
+    }
+    h2.small-brand a {
+        font-size: 30px;
+        font-family: Georgia;
+        text-transform: uppercase;
+        margin-right: 20px;
+        color: rgb(157,157,157);
+    }
+    h3 {
+        font-family: Georgia;
+        font-weight: bold;
+    }
+    .small-nav li {
+        font-family: Georgia;
+        text-transform: uppercase;
+        color: white;
+        font-size: 16px;
+        z-index: 1000;
+    }
+    .small-nav li a {
+        padding: 15px 5px;
+    }
+    .small-nav li a.separator:hover {
+        color: rgb(157,157,157);
+    }
+    .small-nav li a.active {
+        color: white;
+    }
+    .small-nav a:hover {
+        color: black;
+    }
     .center-block {
-        max-width: 600px;
+        max-width: 700px;
     }
     h1.main-title {
     	margin-top: 0;
@@ -46,6 +117,12 @@
     section {
         padding-top: 40px;
         margin-top: -40px;
+    }
+
+    @media screen and (max-width: 700px) {
+        h1 {
+            font-size: 32px;
+        }
     }
 </style>
 {% endblock %}
@@ -64,10 +141,12 @@
 	<div class="center-block">
 		<h1 class="main-title text-center">Crime on Campus</h1>
         <p class="byline">By <a target="_blank" href="http://www.dailycal.org/author/schinoy/">Sahil Chinoy</a> and <a>Thomas Kim</a></p>
-        <p class="date">November 17, 2015</p>
-        <p>In 2014, UC Berkeley saw the second-greatest number of violent crimes of any University of California campus, behind only Los Angeles, <a target="_blank" href="https://www.fbi.gov/about-us/cjis/ucr/crime-in-the-u.s/2014/crime-in-the-u.s.-2014/tables/table-9/table-9-pieces/Table_9_Offenses_Known_to_Law_Enforcement_California_by_University_and_College_2014.xls">according to the FBI</a>. It also experienced more than 1,000 instances of property crimes such as burglary and theft &mdash; the most of any of the 49 California public schools in the FBI data.</p>
-        <p>However, many factors influence these crime reports, including the size of the student body and the campus location. UC Berkeley has over 35,000 students and exists in an urban area with a relatively high crime rate, unlike many other campuses.
-        <p>The Daily Californian analyzed five years of UCPD's daily activity logs, finding that crime is unevenly distributed across campus, between days of the week and through the year. Explore an <a href="#map">interactive map</a> of crime around campus, <a href="#hours">view crime by time of day</a>, <a href="#months"> see historical trends</a> or read about <a href="#about">how we analyzed the data</a>.</p>
+        <p class="date">November 18, 2015</p>
+        <p>In 2014, UC Berkeley had the second-greatest number of violent crimes of any University of California campus, behind only Los Angeles, <a target="_blank" href="https://www.fbi.gov/about-us/cjis/ucr/crime-in-the-u.s/2014/crime-in-the-u.s.-2014/tables/table-9/table-9-pieces/Table_9_Offenses_Known_to_Law_Enforcement_California_by_University_and_College_2014.xls">according to the FBI</a>. It also experienced more than 1,000 property crimes such as burglary and theft &mdash; the most of any of the 49 California public schools in the FBI data.</p>
+
+        <p>On a campus with more than 35,000 students located in an urban area, it may be unsurprising that UC Berkeley has a relatively high crime rate compared to smaller schools in suburban settings. But crime reports are not distributed evenly throughout the campus or during the day, a Daily Californian analysis of five years of UCPD's daily logs showed. While violent crime clusters on the outskirts of campus, most property crime reports originate on campus and are concentrated during the weekday daytime hours.</p>
+
+        <p>Explore an <a href="#map">interactive map</a> of crime around campus, <a href="#hours">view crime by time of day</a>, <a href="#months"> see historical trends</a> or read about <a href="#about">how we analyzed the data</a>.</p>
 	</div>
 </section>
 
@@ -75,11 +154,11 @@
 	<hr>
     <div class="center-block">
         <h3>By area</h3>
-        <p>The area south of campus has experienced the most violent crime reports since 2010, notably in <b>People's Park</b> and the surrounding area, where there were multiple reports of battery, aggravated theft, robbery and assault. However, the crimes reported most often in the area were drug and alcohol violations and petty theft. These quality-of-life crimes, encompassing narcotics violations and disorderly conduct, were most concentrated in the <b>Telegraph Avenue</b> area south of campus.</p>
+        <p>The area south of campus has experienced the most violent crime reports since 2010, notably in <b>People's Park</b> and the surrounding <b>Telegraph Avenue</b> area, where there were multiple reports of battery, aggravated theft, robbery and assault. However, the crimes reported most often in the area were quality-of-life crimes &mdash; namely drug and alcohol violations and disorderly conduct &mdash; and petty theft.</p>
 
         <p>In contrast, most property crimes were reported on campus. Frequent reports came from the <b>Recreational Sports Facility</b>, <b>Golden Bear Cafe</b>, <b>Dwinelle Hall</b> and libraries such as <b>Doe Library</b> and <b>Moffitt Library</b>, areas where students and staff are more likely to leave personal items unattended.</p>
 
-        <p><b>Click a bin</b> for detailed information.</p>
+        <p><i class="fa fa-hand-pointer-o"></i> &nbsp;<b>Click a bin</b> for detailed information.</p>
     </div>
 	{% include 'map.html' %}
 </section>

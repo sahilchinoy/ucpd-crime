@@ -24,7 +24,6 @@
 
 .big-number.total {
     font-size: 50px;
-    color: rgb(153,0,0);
     margin-right: 20px;
     margin-top: -17px;
     float: left;
@@ -33,18 +32,19 @@
 td.big-number {
     text-align: right;
     padding-right: 20px;
+    color: darkslategrey;
 }
 
 .big-number.violent {
-    color: #fb8072;
+    color: #e31a1c;
 }
 
 .big-number.property {
-    color: #2c7fb8;
+    color: #1f78b4;
 }
 
 .big-number.QOL {
-    color: #7fcdbb;
+    color: #33a02c;
 }
 
 /* Map */
@@ -132,8 +132,6 @@ td.big-number {
 
 /* Column chart */
 
-.chart { position: relative; }
-
 line, rect {
     shape-rendering: crispEdges;
 }
@@ -165,10 +163,6 @@ line, rect {
     shape-rendering: crispEdges;
 }
 
-.grid.y {
-    g:first-child line { display: none; }
-}
-
 #column-chart .value text {
     font-size: 10px;
     -webkit-font-smoothing: antialiased;
@@ -190,7 +184,7 @@ line, rect {
     display: none;
 }
 
-.bars rect { fill: #999999; }
+.bars rect { fill: darkslategrey; }
 
 .zero-line  {
     stroke: #666;
@@ -212,32 +206,29 @@ line, rect {
       </div>
       <div class="modal-body">
 
-        <span class="big-number total"><%= counts.total %></span> incidents from Jan. 2010 to Sept. 2015, <b><%= counts.comparison.total %></b> the average of <% print(counts.mean.total.toFixed('1')) %>.
+        <span class="big-number total"><%= counts.total %></span> incidents from Jan. 2010 to Sept. 2015, <b>
+        <% print(above_or_below(counts.total, counts.mean.total)) %></b> the average of <% print(counts.mean.total.toFixed('1')) %>.
 
-        <p>This bin ranks <b><%= counts.rank %></b> out of <%= counts.bin_count %> bins for crime reports in this time period.</p>
+        <p>This bin ranks <b><% print(ordinal_suffix_of(counts.rank))%></b> out of <%= counts.bin_count %> bins for crime reports in this time period.</p>
 
         <hr style="clear: both;">
 
         <table>
             <tr>
                 <td class="big-number violent"><%= counts.violent %></td>
-                <td>violent crimes, <b><%= counts.comparison.violent %></b> the average of <% print(counts.mean.violent.toFixed('1')) %>.</td>
+                <td>violent crimes, <b><% print(above_or_below(counts.violent, counts.mean.violent)) %></b> the average of <% print(counts.mean.violent.toFixed('1')) %>.</td>
             </tr>
             <tr>
                 <td class="big-number property"><%= counts.property %></td>
-                <td>property crimes, <b><%= counts.comparison.violent %></b> the average of <% print(counts.mean.property.toFixed('1')) %>.</td>
+                <td>property crimes, <b><% print(above_or_below(counts.property, counts.mean.property)) %></b> the average of <% print(counts.mean.property.toFixed('1')) %>.</td>
             </tr>
             <tr>
                 <td class="big-number QOL"><%= counts.QOL %></td>
-                <td>quality-of-life crimes, <b><%= counts.comparison.QOL %></b> the average of <% print(counts.mean.QOL.toFixed('1')) %>.</td>
+                <td>quality-of-life crimes, <b><% print(above_or_below(counts.QOL, counts.mean.QOL)) %></b> the average of <% print(counts.mean.QOL.toFixed('1')) %>.</td>
             </tr>
         </table>
 
         <hr>
-
-        <p>Crime in this bin <b><% if (time_comparison > 0) { print('increased') } else { print('decreased') }%></b> by <% print(Math.abs(time_comparison).toFixed('0')) %> percent from 2013 to 2014.</p>
-
-        <br>
 
         <div id="column-chart"></div>
 
@@ -288,228 +279,220 @@ line, rect {
 </script>
 
 <script type="text/javascript">
-$(document).ready(function() {
-    // some globals
-    var bins;
-    var view;
-    var modalTemplate = _.template($('#modal-template').html());
-    var format = d3.format("0,000");
+// some globals
+var bins;
+var view;
+var modalTemplate = _.template($('#modal-template').html());
+var format = d3.format("0,000");
 
-    // thanks colorbrewer
-    var colors = ['#ffffcc','#ffeda0','#fed976','#feb24c','#fd8d3c','#fc4e2a','#e31a1c'];
-    var colorscale = d3.scale.quantile();
-    
-    /*
-    * Set up the basic map
-    */
-
-    // create a map in the "map" div, set the view to a given place and zoom
-    var map = L.map('map-container', {
-        center: [37.8716844,-122.2576889],
-        zoom: 15,
-        minZoom: 15,
-        scrollWheelZoom: false,
-        maxBounds: [[37.846188, -122.294424],[37.891093, -122.231725]],
-        zoomControl: false,
-    });
-
-    // add an OpenStreetMap tile layer
-    var OpenStreetMap_BlackAndWhite = L.tileLayer('http://{s}.tiles.wmflabs.org/bw-mapnik/{z}/{x}/{y}.png', {
-        maxZoom: 18,
-        attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-        opacity: 1,
-        detectRetina: true
-    }).addTo(map);
-
-    // base class for our corner overlays
-    var CornerOverlay = L.Control.extend({
-        initialize: function(html, position, extra_class) {
-            html = typeof html !== 'undefined' ?  html : '';
-            position = typeof position !== 'undefined' ?  position : 'bottomright';
-            extra_class = typeof extra_class !== 'undefined' ?  extra_class : '';
-            this._html = html;
-            this._class = extra_class;
-            this.options.position = position;
-        },
-        onAdd: function(map) {
-            var container = L.DomUtil.create('div', this._class, L.DomUtil.get('map'));
-            container.innerHTML = this._html;
-            return container;
-        },
-        update: function(html) {
-            this._html = html;
-            this.getContainer().innerHTML = html;
-        }
-    });
-
-    // HTML legend
-    var legendTemplateScale = _.template($('#legend-template-scale').html());
-    var Legend = CornerOverlay.extend({
-        onAdd: function(map) {
-            var container = L.DomUtil.create('div', 'overlay legend map-legend', L.DomUtil.get('map'));
-            container.innerHTML = this._html;
-            return container;
-        },
-        addData: function(legendData) {
-            var defaults = {align: 'left', template: 'scale'};
-            var opts = _.extend(defaults, legendData)
-            if (opts.template == 'swatch') {
-                var html = legendTemplateSwatch(opts);
-            } else {
-                var html = legendTemplateScale(opts);
-            }
-            this.update(html);
-        },
-    });
-
-    // all the controls
-    var total_label = new CornerOverlay('Showing <span id="total-count"></span> incidents.','topright','lbl overlay')
-    map.addControl(total_label);
-    var severitytoggle = new CornerOverlay($('#severity-toggle-template').html(),'topright');
-    map.addControl(severitytoggle);
-    var zoom = new L.control.zoom({position: 'topleft'})
-    map.addControl(zoom);
-    var fullscreen = new L.Control.Fullscreen;
-    map.addControl(fullscreen);
-    var legend = new Legend('','bottomright');
-    map.addControl(legend);
-
-    var base_style = {
-        fillColor: 'grey',
-        fillOpacity: 0,
-        stroke: false,
-        color: 'black',
-        weight: 2,
+// http://stackoverflow.com/questions/13627308/add-st-nd-rd-and-th-ordinal-suffix-to-a-number
+function ordinal_suffix_of(i) {
+    var j = i % 10,
+        k = i % 100;
+    if (j == 1 && k != 11) {
+        return i + "st";
     }
-    var binStyle = function(featureData) {
-        return base_style;
+    if (j == 2 && k != 12) {
+        return i + "nd";
     }
-
-    var renderLegend = function() {
-        var keys = colorscale.quantiles().slice();
-        var _items = {}
-
-        for (var i=0; i<keys.length; i++) {
-            if (i == keys.length-1) {
-                _items[keys[i].toFixed(0) + '+'] = colors[i]
-            } else {
-                _items[keys[i].toFixed(0)] = colors[i];
-            }
-        }
-
-        var legend_title= 'Number of incidents'
-        var legendData  = {
-            'title': legend_title,
-            'items': _items,
-        }
-
-        legend.addData(legendData);
+    if (j == 3 && k != 13) {
+        return i + "rd";
     }
+    return i + "th";
+}
 
-    // Use counts dictionary to color bins
-    var color_bins = function(counts) {
-        var bin_layers = bins.getLayers();
+function above_or_below(a, b) {
+    if (a > b) {
+        return 'above';
+    } else {
+        return 'below';
+    }
+}
 
-        // First, we establish the color scale
-        counts_array = [];
-        for (var i=0; i<bin_layers.length; i++) {
-            var bin = bin_layers[i];
-            var id = bin.feature.properties.id;
-            bin.count = counts[id] || 0;
-            if (bin.count > 0) {
-                counts_array.push(bin.count);
-            }
+// thanks colorbrewer
+var colors = ['#ffffcc','#ffeda0','#fed976','#feb24c','#fd8d3c','#fc4e2a','#e31a1c'];
+var colorscale = d3.scale.quantile();
+
+/*
+* Set up the basic map
+*/
+
+// create a map in the "map" div, set the view to a given place and zoom
+var map = L.map('map-container', {
+    center: [37.8716844,-122.2576889],
+    zoom: 15,
+    minZoom: 15,
+    scrollWheelZoom: false,
+    maxBounds: [[37.846188, -122.294424],[37.891093, -122.231725]],
+    zoomControl: false,
+});
+
+// add an OpenStreetMap tile layer
+var OpenStreetMap_BlackAndWhite = L.tileLayer('http://{s}.tiles.wmflabs.org/bw-mapnik/{z}/{x}/{y}.png', {
+    maxZoom: 18,
+    attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+    opacity: 1,
+    detectRetina: true
+}).addTo(map);
+
+// base class for our corner overlays
+var CornerOverlay = L.Control.extend({
+    initialize: function(html, position, extra_class) {
+        html = typeof html !== 'undefined' ?  html : '';
+        position = typeof position !== 'undefined' ?  position : 'bottomright';
+        extra_class = typeof extra_class !== 'undefined' ?  extra_class : '';
+        this._html = html;
+        this._class = extra_class;
+        this.options.position = position;
+    },
+    onAdd: function(map) {
+        var container = L.DomUtil.create('div', this._class, L.DomUtil.get('map'));
+        container.innerHTML = this._html;
+        return container;
+    },
+    update: function(html) {
+        this._html = html;
+        this.getContainer().innerHTML = html;
+    }
+});
+
+// HTML legend
+var legendTemplateScale = _.template($('#legend-template-scale').html());
+var Legend = CornerOverlay.extend({
+    onAdd: function(map) {
+        var container = L.DomUtil.create('div', 'overlay legend map-legend', L.DomUtil.get('map'));
+        container.innerHTML = this._html;
+        return container;
+    },
+    addData: function(legendData) {
+        var defaults = {align: 'left', template: 'scale'};
+        var opts = _.extend(defaults, legendData)
+        if (opts.template == 'swatch') {
+            var html = legendTemplateSwatch(opts);
+        } else {
+            var html = legendTemplateScale(opts);
         }
-        // Now that we have an array of counts, we can set up the quantile scale
-        colorscale = colorscale.domain(counts_array).range(colors);
-        // And render the appropriate legend
-        renderLegend();
+        this.update(html);
+    },
+});
 
-        // Now, we loop through the bins and actually color them
-        for (var i=0; i<bin_layers.length; i++) {
-            var _count = bin_layers[i].count;
-            // Don't display bins with 0 incidents
-            if (_count < 1) {
-                var _color = 'grey';
-                var _opacity = 0;
-                map.removeLayer(bin_layers[i]);
-            } else {
-                bin_layers[i].addTo(map);
-                var _color = colorscale(_count);
-                var _opacity = 0.6;
-            }
-            var style = _.extend(
-                base_style,
-                {
-                    fillColor: _color,
-                    fillOpacity: _opacity
-                });
+// all the controls
+var total_label = new CornerOverlay('Showing <span id="total-count"></span> incidents.','topright','lbl overlay')
+map.addControl(total_label);
+var severitytoggle = new CornerOverlay($('#severity-toggle-template').html(),'topright');
+map.addControl(severitytoggle);
+var zoom = new L.control.zoom({position: 'topleft'})
+map.addControl(zoom);
+var fullscreen = new L.Control.Fullscreen;
+map.addControl(fullscreen);
+var legend = new Legend('','bottomright');
+map.addControl(legend);
 
-            bin_layers[i].setStyle(style);
+var base_style = {
+    fillColor: 'grey',
+    fillOpacity: 0,
+    stroke: false,
+    color: 'black',
+    weight: 2,
+}
+var binStyle = function(featureData) {
+    return base_style;
+}
+
+var renderLegend = function() {
+    var keys = colorscale.quantiles().slice();
+    var _items = {}
+
+    for (var i=0; i<keys.length; i++) {
+        if (i == keys.length-1) {
+            _items[keys[i].toFixed(0) + '+'] = colors[i]
+        } else {
+            _items[keys[i].toFixed(0)] = colors[i];
         }
     }
 
-    // Handles AJAX-ing in the data when a bin is clicked
-    function openModal(bin_id) {
-        $.ajax("/api/bin/" + bin_id + ".json", {
-            success: function(data) {      
-                html = modalTemplate(data);
-                $('#binModal').html(html);
-                $('#binModal').modal('show');
-
-                var width = $(document).width();
-                if (width > 550) {
-                    width = 550;
-                } else {
-                    width = width * 0.7;
-                }
-
-                renderChart(data['time_series'], width);
-            }
-        })
+    var legend_title= 'Number of incidents'
+    var legendData  = {
+        'title': legend_title,
+        'items': _items,
     }
 
-    // Get the bin GeoJSON
-    $.getJSON("{% url 'bins-json' %}", function(response) {
-        bins = L.geoJson(response, {
-            style: binStyle,
-        }).addTo(map);
+    legend.addData(legendData);
+}
 
-        // Set up the event listeners
-        _.each(bins.getLayers(), function(bin) {
-            // To open the modal
-            bin.on('click', function(e) {
-                openModal(e.target.feature.properties.id);
+// Use counts dictionary to color bins
+var color_bins = function(counts) {
+    var bin_layers = bins.getLayers();
+
+    // First, establish the color scale
+    counts_array = [];
+    for (var i=0; i<bin_layers.length; i++) {
+        var bin = bin_layers[i];
+        var id = bin.feature.properties.id;
+        bin.count = counts[id] || 0;
+        if (bin.count > 0) {
+            counts_array.push(bin.count);
+        }
+    }
+    // Now that we have an array of counts, set up the quantile scale
+    colorscale = colorscale.domain(counts_array).range(colors);
+    // And render the appropriate legend
+    renderLegend();
+
+    // Now, loop through the bins and actually color them
+    for (var i=0; i<bin_layers.length; i++) {
+        var _count = bin_layers[i].count;
+        // Don't display bins with 0 incidents
+        if (_count < 1) {
+            var _color = 'grey';
+            var _opacity = 0;
+            map.removeLayer(bin_layers[i]);
+        } else {
+            bin_layers[i].addTo(map);
+            var _color = colorscale(_count);
+            var _opacity = 0.6;
+        }
+        var style = _.extend(
+            base_style,
+            {
+                fillColor: _color,
+                fillOpacity: _opacity
             });
 
-            // Hover behavior
-            bin.on('mouseover', function(e) {
-                e.target.setStyle({
-                    stroke: true,
-                });
-            });
-            bin.on('mouseout', function(e) {
-                e.target.setStyle({
-                    stroke: false,
-                });
-            });
-        });
-
-        $('#binModal').modal({
-            show: false
-        });
-
-        view.render();
-    });
-
-    // Takes array of incidents and returns number of incidents in each bin
-    function get_bin_counts(data) {
-        return _.countBy(data, function(incident) {
-            return incident.bin;
-        });
+        bin_layers[i].setStyle(style);
     }
+}
 
-    // Get the incident data, unpack it and set up the PourOver view
+// Handles AJAX-ing in the data when a bin is clicked
+var openModal = function(bin_id) {
+    $.ajax("/api/bin/" + bin_id + ".json", {
+        success: function(data) {      
+            html = modalTemplate(data);
+            $('#binModal').html(html);
+            $('#binModal').modal('show');
+
+            var width = $(document).width();
+            if (width > 550) {
+                width = 550;
+            } else {
+                width = width * 0.7;
+            }
+
+            // Render bar chart
+            renderChart(data['time_series'], width);
+        }
+    })
+}
+
+// Takes array of incidents and returns number of incidents in each bin
+var get_bin_counts = function(data) {
+    return _.countBy(data, function(incident) {
+        return incident.bin;
+    });
+}
+
+// Get the incident data, unpack it and set up the PourOver view
+var setUpView = function(){
     $.ajax("{% static 'json/packed.json' %}", {
            success: function(data) {
               data = Tamper.unpackData(data);
@@ -528,20 +511,54 @@ $(document).ready(function() {
               });
 
               view = new BinCountView("default_view", collection);
+              view.render();
     }});
+}
 
-    // Handle control changes
-    $('.target').change(function() {
-        var checkedVals = $('.target:checkbox:checked').map(function() {
-            return this.value;
-        }).get();
-        if (checkedVals.length > 0) {
-            view.collection.filters.category.query(checkedVals);
-            view.render();
-        } else {
-            view.collection.filters.category.clearQuery();
-            view.render();
-        }
+// Get the bin GeoJSON
+$.getJSON("{% url 'bins-json' %}", function(response) {
+    bins = L.geoJson(response, {
+        style: binStyle,
+    }).addTo(map);
+
+    // Set up the event listeners
+    _.each(bins.getLayers(), function(bin) {
+        // Open the modal
+        bin.on('click', function(e) {
+            openModal(e.target.feature.properties.id);
+        });
+
+        // Hover behavior
+        bin.on('mouseover', function(e) {
+            e.target.setStyle({
+                stroke: true,
+            });
+        });
+        bin.on('mouseout', function(e) {
+            e.target.setStyle({
+                stroke: false,
+            });
+        });
     });
+
+    $('#binModal').modal({
+        show: false
+    });
+
+    setUpView();
+});
+
+// Handle control changes
+$('.target').change(function() {
+    var checkedVals = $('.target:checkbox:checked').map(function() {
+        return this.value;
+    }).get();
+    if (checkedVals.length > 0) {
+        view.collection.filters.category.query(checkedVals);
+        view.render();
+    } else {
+        view.collection.filters.category.clearQuery();
+        view.render();
+    }
 });
 </script>
