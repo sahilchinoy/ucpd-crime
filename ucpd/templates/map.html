@@ -554,11 +554,13 @@ $('.target').change(function() {
         return this.value;
     }).get();
     if (checkedVals.length > 0) {
+        bins.addTo(map);
         view.collection.filters.category.query(checkedVals);
         view.render();
     } else {
-        view.collection.filters.category.clearQuery();
-        view.render();
+        // No categories selected? Don't show bins
+        bins.removeFrom(map);
+        $('#total-count').html('0');
     }
 });
 </script>

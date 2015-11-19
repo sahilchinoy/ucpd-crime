@@ -12,13 +12,14 @@ rect.bordered {
 }
 h4 {
     font-size: 14px;
-    margin-left: 30px;
+    margin: 20px 0 5px 30px;
     color: gray;
+    font-weight: normal;
 }
 </style>
 
 <div style="text-align: center;" class="col-md-4 center-block">
-	<h4>Total</h4>
+	<h4>Violent</h4>
 	<div id="time-1"></div>
 </div>
 <div style="text-align: center;" class="col-md-4 center-block">
@@ -26,13 +27,12 @@ h4 {
 	<div id="time-2"></div>
 </div>
 <div style="text-align: center;" class="col-md-4 center-block">
-	<h4>Violent</h4>
+	<h4>Quality-of-life</h4>
 	<div id="time-3"></div>
 </div>
 
 <script type="text/javascript">
-
-$(document).ready(function() {
+(function() {
     // Global config
     var $graphic = $('#time-1');
     var GRAPHIC_DEFAULT_WIDTH = 600;
@@ -82,7 +82,7 @@ $(document).ready(function() {
             container: '#time-1',
             width: containerWidth,
             data: graphicData,
-            key: 'total'
+            key: 'violent'
         });
 
         renderHeatmapChart({
@@ -96,7 +96,7 @@ $(document).ready(function() {
             container: '#time-3',
             width: containerWidth,
             data: graphicData,
-            key: 'violent'
+            key: 'QOL'
         });
     }
 
@@ -120,7 +120,7 @@ $(document).ready(function() {
         var buckets = 7;
         var colors = ['#ffffcc','#ffeda0','#fed976','#feb24c','#fd8d3c','#fc4e2a','#e31a1c'];
         var days = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
-        var times = ["1a", "2a", "3a", "4a", "5a", "6a", "7a", "8a", "9a", "10a", "11a", "12a", "1p", "2p", "3p", "4p", "5p", "6p", "7p", "8p", "9p", "10p", "11p", "12p"];
+        var times = ["1a", "2a", "3a", "4a", "5a", "6a", "7a", "8a", "9a", "10a", "11a", "12p", "1p", "2p", "3p", "4p", "5p", "6p", "7p", "8p", "9p", "10p", "11p", "12a"];
 
         // Clear existing graphic (for redraw)
         var containerElement = d3.select(config['container']);
@@ -265,6 +265,7 @@ $(document).ready(function() {
             /*
             * Render cards to chart.
             */
+
             var cards = chartElement.selectAll(".hour")
             .data(data, function(d) {return d.day + ':' + d.hour;});
 
@@ -315,5 +316,5 @@ $(document).ready(function() {
     $( window ).resize(function() {
       render();
     });
-});
+})();
 </script>

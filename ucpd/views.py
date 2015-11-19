@@ -181,16 +181,15 @@ def hours(request):
     response['Content-Disposition'] = 'attachment; filename="hours.csv"'
 
     writer = csv.writer(response)
-    writer.writerow(['day', 'hour', 'total', 'violent', 'property'])
+    writer.writerow(['day', 'hour', 'violent', 'property', 'QOL'])
     for day in range(1, 8):
         qset = Incident.objects.filter(date__week_day=day) \
                 .exclude(category='N')
         for hour in range(0, 24):
-            count = qset.filter(time__hour=hour).count()
             v_count = qset.filter(time__hour=hour).filter(category='V').count()
             p_count = qset.filter(time__hour=hour).filter(category='P').count()
-            writer.writerow([day, hour + 1, count, v_count, p_count])
-
+            q_count = qset.filter(time__hour=hour).filter(category='Q').count()
+            writer.writerow([day, hour + 1, v_count, p_count, q_count])
     return response
 
 
@@ -204,12 +203,10 @@ def months(request):
     response['Content-Disposition'] = 'attachment; filename="months.csv"'
 
     writer = csv.writer(response)
-    writer.writerow(['date', 'Total', 'Violent', 'Property',
-                    'Quality-of-life'])
+    writer.writerow(['date', 'Violent', 'Property', 'Quality-of-life'])
     for year in range(2010, 2016):
         qset = Incident.objects.exclude(category='N').filter(date__year=year)
         for month in range(1, 13):
-            count = qset.filter(date__month=month).count()
             v_count = qset.filter(date__month=month) \
                 .filter(category='V').count()
             p_count = qset.filter(date__month=month) \
@@ -217,6 +214,6 @@ def months(request):
             q_count = qset.filter(date__month=month) \
                 .filter(category='Q').count()
             writer.writerow([str(month).zfill(2) + '/' + str(year),
-                             count, v_count, p_count, q_count])
+                             v_count, p_count, q_count])
 
     return response
