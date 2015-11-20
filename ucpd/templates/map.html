@@ -35,18 +35,6 @@ td.big-number {
     color: darkslategrey;
 }
 
-.big-number.violent {
-    color: #e31a1c;
-}
-
-.big-number.property {
-    color: #1f78b4;
-}
-
-.big-number.QOL {
-    color: #33a02c;
-}
-
 /* Map */
 
 #map-container {
@@ -115,22 +103,15 @@ td.big-number {
 
 /* Controls */
 
-#hour-slider {
-    width: 100px;
-}
-
-#hour-slider .slider-handle {
-    width: 12px;
-    height: 12px;
-    margin-left: -5px;
-    margin-top: 0;
-}
-
 .total-label {
     font-size: 14px;
 }
 
 /* Column chart */
+
+#column-chart {
+    margin-top: 20px;
+}
 
 line, rect {
     shape-rendering: crispEdges;
@@ -140,11 +121,6 @@ line, rect {
     font-size: 11px;
     -webkit-font-smoothing: antialiased;
     fill: #777;
-
-    &.y {
-        path { display: none; }
-        .tick line { display: none; }
-    }
 }
 
 .axis path, .axis line {
@@ -184,7 +160,9 @@ line, rect {
     display: none;
 }
 
-.bars rect { fill: darkslategrey; }
+.bars rect {
+    fill: darkslategrey;
+}
 
 .zero-line  {
     stroke: #666;

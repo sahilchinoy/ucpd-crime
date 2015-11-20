@@ -1,10 +1,10 @@
 {% load static from staticfiles %}
 
 <style type="text/css">
-text.label {
+text.chartLabel {
     font-size: 11px;
     -webkit-font-smoothing: antialiased;
-    fill: #999;
+    fill: #777;
 }
 rect.bordered {
     stroke: #E6E6E6;
@@ -13,21 +13,21 @@ rect.bordered {
 h4 {
     font-size: 14px;
     margin: 20px 0 5px 30px;
-    color: gray;
+    color: #777;
     font-weight: normal;
 }
 </style>
 
 <div style="text-align: center;" class="col-md-4 center-block">
-	<h4>Violent</h4>
+	<h4>Violent crime</h4>
 	<div id="time-1"></div>
 </div>
 <div style="text-align: center;" class="col-md-4 center-block">
-	<h4>Property</h4>
+	<h4>Property crime</h4>
 	<div id="time-2"></div>
 </div>
 <div style="text-align: center;" class="col-md-4 center-block">
-	<h4>Quality-of-life</h4>
+	<h4>Quality-of-life crime</h4>
 	<div id="time-3"></div>
 </div>
 
@@ -170,7 +170,7 @@ h4 {
               .attr("y", 0)
               .style("text-anchor", "middle")
               .attr("transform", "translate(" + gridSize / yScaleFactor + ", -6)")
-              .attr("class", "label");
+              .attr("class", "chartLabel");
 
             /*
             * Render time labels to chart.
@@ -183,7 +183,7 @@ h4 {
               .attr("y", function(d, i) { return i * gridSize / yScaleFactor; })
               .style("text-anchor", "end")
               .attr("transform", "translate(-6," + gridSize / (yScaleFactor * 1.5) + ")")
-              .attr("class", "label");
+              .attr("class", "chartLabel");
 
             /*
             * Render cards to chart.
@@ -220,7 +220,7 @@ h4 {
             .text(function(d) { return Math.round(d); })
             .attr("x", function(d, i) { return legendElementWidth * i; })
             .attr("y", (gridSize / yScaleFactor) * 25.5 + 10)
-            .attr("class", "label");
+            .attr("class", "chartLabel");
 
             legend.exit().remove();
 
@@ -247,7 +247,7 @@ h4 {
               .attr("y", function (d, i) { return i * gridSize; })
               .style("text-anchor", "end")
               .attr("transform", "translate(-6," + gridSize / 1.5 + ")")
-              .attr("class", "label");
+              .attr("class", "chartLabel");
 
             /*
             * Render time labels to chart.
@@ -260,7 +260,7 @@ h4 {
               .attr("y", 0)
               .style("text-anchor", "middle")
               .attr("transform", "translate(" + gridSize / 2 + ", -6)")
-              .attr("class", "label");
+              .attr("class", "chartLabel");
 
             /*
             * Render cards to chart.
@@ -298,7 +298,7 @@ h4 {
             .text(function(d) { return Math.round(d); })
             .attr("x", function(d, i) { return legendElementWidth * i; })
             .attr("y", gridSize * 8.5 + 10)
-            .attr("class", "label");
+            .attr("class", "chartLabel");
 
             legend.exit().remove();
         }
