@@ -132,7 +132,7 @@ STATICFILES_DIRS = (
 
 BUILD_DIR = os.path.join(BASE_DIR, 'build')
 
-AWS_BUCKET_NAME=os.environ.get('AWS_BUCKET_NAME')
+AWS_BUCKET_NAME = os.environ.get('AWS_BUCKET_NAME')
 AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
 AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
 
