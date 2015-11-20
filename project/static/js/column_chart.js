@@ -272,27 +272,10 @@ var renderColumnChart = function(config) {
                 var textHeight = d3.select(this).node().getBBox().height;
                 var barHeight = 0;
 
-                if (d[valueColumn] < 0) {
-                    barHeight = yScale(d[valueColumn]) - yScale(0);
+                barHeight = yScale(0) - yScale(d[valueColumn]);
 
-                    if (textHeight + valueGap * 2 < barHeight) {
-                        d3.select(this).classed('in', true);
-                        return -(textHeight - valueGap / 2);
-                    } else {
-                        d3.select(this).classed('out', true)
-                        return textHeight + valueGap;
-                    }
-                } else {
-                    barHeight = yScale(0) - yScale(d[valueColumn]);
-
-                    if (textHeight + valueGap * 2 < barHeight) {
-                        d3.select(this).classed('in', true)
-                        return textHeight + valueGap;
-                    } else {
-                        d3.select(this).classed('out', true)
-                        return -(textHeight + valueGap);
-                    }
-                }
+                d3.select(this).classed('in', true)
+                return textHeight + valueGap;
             })
             .attr('text-anchor', 'middle')
 }

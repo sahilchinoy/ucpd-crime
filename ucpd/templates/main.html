@@ -18,7 +18,7 @@
 <meta property="og:url" content="http://projects.dailycal.org/crime/" />
 <meta property="og:type" content="article" />
 <meta property="og:description" content="Analyzing crime around the UC Berkeley campus." />
-<meta property="og:image" content="http://www.dailycal.org/assets/uploads/2015/11/crime_shareimage.jpg" />
+<meta proph4erty="og:image" content="http://www.dailycal.org/assets/uploads/2015/11/crime_shareimage.jpg" />
 <meta property="og:site_name" content="The Daily Californian"/>
 <meta property="article:publisher" content="https://www.facebook.com/dailycal"/>
 <meta property="fb:admins" content="877855486"/>
@@ -101,9 +101,6 @@
         font-size: 11px;
         margin: -6px 0 20px 0;
     }
-    hr {
-        margin: 5px 0;
-    }
     @media screen and (max-width: 700px) {
         h1 {
             font-size: 32px;
@@ -122,7 +119,7 @@
 {% block content %}
 <div class="container">
 
-<section class="col-md-12" style="z-index: 2;">
+<section class="col-md-12">
 	<div class="center-block">
 		<h1 class="main-title text-center">Crime on Campus</h1>
 
@@ -132,9 +129,9 @@
 
         <p class="date">November 20, 2015</p>
 
-        <p>In 2014, UC Berkeley experienced more than 1,000 property crimes such as burglary and theft &mdash; the most of any of 49 California public schools <a target="_blank" href="https://www.fbi.gov/about-us/cjis/ucr/crime-in-the-u.s/2014/crime-in-the-u.s.-2014/tables/table-9/table-9-pieces/Table_9_Offenses_Known_to_Law_Enforcement_California_by_University_and_College_2014.xls">reporting to the FBI</a>. It also had the second-highest violent crime per student rate of any undergraduate University of California campus, behind only Los Angeles.</p>
+        <p>In 2014, UC Berkeley experienced more than 1,000 property crimes, such as burglary and theft &mdash; the most of any of 49 California public schools <a target="_blank" href="https://www.fbi.gov/about-us/cjis/ucr/crime-in-the-u.s/2014/crime-in-the-u.s.-2014/tables/table-9/table-9-pieces/Table_9_Offenses_Known_to_Law_Enforcement_California_by_University_and_College_2014.xls">reporting to the FBI</a>. It also had the second-highest violent-crime-per-student rate of any undergraduate UC campus, behind only UCLA.</p>
 
-        <p>On a campus with more than 35,000 students located in an urban area, it may be unsurprising that UC Berkeley has a relatively high crime rate compared to smaller schools in suburban settings. A Daily Californian analysis showed, however, that violent crime clusters on the outskirts of campus, while most property crime reports originate on campus and are concentrated during the weekday daytime hours.</p>
+        <p>On a campus with more than 35,000 students located in an urban area, it may be unsurprising that the crime rate is relatively high compared with that of smaller schools in suburban settings. A Daily Californian analysis showed, however, that violent crime clusters on the outskirts of campus, while most property crime reports originate on campus and are concentrated during the weekday daytime hours.</p>
 
         <p>Explore an <a href="#map">interactive map</a> of crime around campus, <a href="#hours">view crime by time of day</a>, <a href="#months"> see historical trends</a> or read about <a href="#about">how we analyzed the data</a>.</p>
 	</div>
@@ -144,13 +141,14 @@
 	<hr>
     <div class="center-block">
         <h3>By area</h3>
-        <p>The area south of campus &mdash; around Telegraph Avenue from Bancroft Way to Dwight Way &mdash; has experienced the most violent crime reports since 2010, notably in People's Park and the surrounding area, where there were multiple reports of battery, aggravated theft, robbery and assault. However, the crimes reported most often in the area were quality-of-life crimes, such as drug and alcohol violations and disorderly conduct, and petty theft.</p>
 
-        <p>In contrast, most property crimes were reported on campus. Frequent reports came from the Recreational Sports Facility, Golden Bear Cafe, Dwinelle Hall and libraries such as Doe Library and Moffitt Library. Across the area we examined, however, the number of property crime reports, especially petty theft, dwarfed those of other types.</p></p>
+        <p>The area south of campus, around Telegraph Avenue from Bancroft Way to Dwight Way, has experienced the most violent crime reports since 2010, notably in People's Park and the surrounding area, where there were multiple reports of battery, aggravated theft, robbery and assault. But the crimes reported most often in the area were quality-of-life crimes — such as drug and alcohol violations and disorderly conduct — and petty theft.</p>
 
-        <p>Our analysis grouped incidents into 326 equally-sized &ldquo;bins&rdquo; to compare the frequency and types of reports across areas. Any incident within a bin's boundaries was counted towards that bin's total.</p>
+        <p>In contrast, most property crimes were reported on campus. Frequent reports came from the Recreational Sports Facility, Golden Bear Cafe, Dwinelle Hall and libraries such as Doe and Moffitt. Across the area we examined, however, the number of property crime reports, especially petty theft, dwarfed those of other types.</p>
 
-        <p><i class="fa fa-hand-pointer-o"></i> &nbsp;<b>Click a bin</b> for detailed information.</p>
+        <p>Our analysis grouped incidents into 326 equally sized “bins” to compare the frequency and types of reports across areas. Any incident within a bin's boundaries was counted toward that bin's total.</p>
+
+        <p><i class="fa fa-hand-pointer-o"></i> &nbsp;<b>Click on a bin</b> for detailed information.</p>
     </div>
 	{% include 'map.html' %}
 </section>
@@ -159,6 +157,7 @@
     <hr>
     <div class="center-block">
         <h3>By time of day</h3>
+
         <p>Although crimes tended to occur more frequently on weekday afternoons, they fell largely into the category of property crimes. Violent and quality-of-life crimes were more sporadic.</p>
 
         <p>The graphic below counts the total number of crimes of each type reported by day of the week and hour from January 2010 to September 2015.</p>
@@ -170,6 +169,7 @@
     <hr>
     <div class="center-block">
         <h3>By month</h3>
+        
         <p>Crime reports have decreased since 2010, though they varied according to season. Property and quality-of-life crimes declined during the summer months, likely because there were fewer people on and around campus.</p>
     </div>
     {% include 'months.html' %}
